@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rahama Saleh | Portfolio</title>
+<meta name="description" content="Portfolio of Rahama (Ami) Saleh: technology, products and people. Training tools, QA testing, data analysis and product work.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗝️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F8FA; --ink:#16181D; --muted:#5F5A66; --plum:#3B1F4A; --plum-2:#56306A;
+  --rose:#F4A6C8; --tint:#EFE8F2; --line:#DDD6E1; --white:#FFFFFF;
+  --pink:#E0529C; --pink-soft:#F9C6DE; --pink-pale:#FDEAF3;
+  --display:"Bricolage Grotesque", "Arial Narrow", Arial, sans-serif;
+  --body:"Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.6 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:var(--plum-2)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--pink);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--display);line-height:1.08;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(30px,4vw,44px);font-weight:800;margin-bottom:12px}
+h3{font-size:24px;font-weight:700}
+p{margin:0 0 14px;max-width:66ch}
+.lede{font-size:19px;color:var(--muted)}
+
+/* Nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+nav .mark{font-family:var(--display);font-weight:800;font-size:20px;color:var(--plum);text-decoration:none}
+nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0}
+nav ul a{color:var(--ink);text-decoration:none;font-weight:500}
+nav ul a:hover{color:var(--pink);text-decoration:underline;text-underline-offset:4px}
+
+/* Hero */
+.hero{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:48px 0 88px}
+.hero h1{font-size:clamp(44px,6.2vw,76px);font-weight:800;color:var(--plum);letter-spacing:-.03em}
+.hero .who{font-family:var(--display);font-size:clamp(26px,3vw,34px);font-weight:700;color:var(--plum);letter-spacing:-.01em;margin:0 0 16px;max-width:24ch;line-height:1.2}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.btn{display:inline-block;padding:13px 22px;border-radius:999px;font-weight:600;text-decoration:none;border:2px solid var(--plum)}
+.btn.solid{background:var(--plum);color:var(--white)}
+.btn.solid:hover{background:var(--pink);border-color:var(--pink)}
+.btn.ghost{color:var(--plum)}
+.btn.ghost:hover{background:var(--pink-pale);border-color:var(--pink);color:var(--pink)}
+
+/* Soft pink glow */
+.glow{position:absolute;z-index:0;border-radius:50%;filter:blur(40px);opacity:.55;pointer-events:none;
+  background:radial-gradient(circle,var(--pink-soft),transparent 70%)}
+.glow.g1{width:380px;height:380px;right:4%;top:10%;animation:drift 12s ease-in-out infinite}
+.glow.g2{width:240px;height:240px;left:-60px;bottom:40px;opacity:.4;animation:drift 15s ease-in-out infinite reverse}
+@keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,25px)}}
+.hero > div{position:relative;z-index:1}
+
+/* Fanned screens */
+.fan{position:relative;height:470px}
+.fan a{position:absolute;width:84%;border-radius:10px;overflow:hidden;background:var(--white);
+  box-shadow:0 22px 50px -18px rgba(59,31,74,.45);border:1px solid var(--line);transition:transform .35s ease}
+.fan a::before{content:"";display:block;height:22px;background:var(--pink-pale);border-bottom:1px solid var(--line)}
+.fan a:nth-child(1){left:0;top:40px;transform:rotate(-7deg);z-index:1}
+.fan a:nth-child(2){left:8%;top:10px;transform:rotate(-1deg);z-index:2}
+.fan a:nth-child(3){left:16%;top:110px;transform:rotate(5deg);z-index:3}
+.fan a:hover,.fan a:focus-visible{transform:rotate(0) translateY(-10px) scale(1.03);z-index:5}
+.fan-note{position:absolute;bottom:0;left:0;font-size:14px;color:var(--muted)}
+
+@media (prefers-reduced-motion:reduce){
+  .fan a{transition:none} html{scroll-behavior:auto}
+  .glow{animation:none}
+}
+
+/* Featured project */
+.featured{background:var(--plum);color:var(--white);padding:88px 0;border-radius:28px 28px 0 0}
+.featured .lede{color:#D9CCE0}
+.featured a{color:var(--rose)}
+.facts{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 48px;padding:0;list-style:none}
+.facts li{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:7px 14px;border-radius:999px;font-size:15px}
+.tool{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:36px 0;border-top:1px solid rgba(255,255,255,.16)}
+.tool:nth-of-type(even) .shot{order:2}
+.shot{border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.25);background:var(--white)}
+.tool h3{color:var(--white);margin-bottom:10px}
+.tool p{color:#E8DFEC}
+.tool .who-for{font-size:15px;color:var(--rose);font-weight:600;margin-bottom:8px}
+.play{display:inline-block;margin-top:6px;padding:11px 20px;border-radius:999px;background:var(--rose);color:var(--plum)!important;font-weight:600;text-decoration:none}
+.play:hover{background:#F8C2DA}
+.teams{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center;margin-top:36px;padding:32px;background:rgba(255,255,255,.07);border-radius:18px}
+.teams h3{color:var(--white);margin-bottom:10px}
+.teams p{color:#E8DFEC}
+
+/* Other work */
+section.block{padding:88px 0}
+.work{display:grid;grid-template-columns:repeat(2,1fr);gap:0;margin-top:36px;border-top:2px solid var(--ink)}
+.work article{padding:28px 28px 32px 0;border-bottom:1px solid var(--line)}
+.work article.right{padding-left:28px;border-left:1px solid var(--line)}
+.work article.wide{grid-column:1 / -1;padding-right:0}
+.work .meta{font-size:15px;color:var(--muted);margin:6px 0 12px}
+.work .stat{font-family:var(--display);font-weight:800;font-size:34px;color:var(--plum);line-height:1}
+.stats{display:flex;gap:36px;margin:14px 0}
+.stats span{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding:0;list-style:none}
+.tags li{font-size:14px;padding:4px 11px;border-radius:6px;background:var(--tint);color:var(--plum)}
+.links{display:flex;flex-wrap:wrap;gap:18px;margin-top:6px}
+
+/* Experience timeline */
+.timeline{list-style:none;margin:36px 0 0;padding:0;border-left:3px solid var(--tint)}
+.timeline li{position:relative;padding:0 0 30px 30px}
+.timeline li::before{content:"";position:absolute;left:-9px;top:6px;width:15px;height:15px;border-radius:50%;background:var(--white);border:3px solid var(--plum)}
+.timeline li:first-child::before{background:var(--pink);border-color:var(--pink)}
+.timeline .when{font-size:15px;color:var(--muted)}
+.timeline h3{font-size:21px;margin:2px 0 6px}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:56px}
+.skills{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;margin-top:20px;padding:0;list-style:none}
+.skills li{padding:8px 0;border-bottom:1px solid var(--line)}
+.edu p{margin-bottom:18px}
+.edu strong{display:block;font-family:var(--display);font-size:20px}
+
+footer{background:var(--ink);color:var(--white);padding:72px 0 40px}
+footer h2{color:var(--white)}
+.contact-list{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:14px}
+.contact-list li{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
+.contact-list span{min-width:90px;color:var(--pink-soft);font-size:15px;font-weight:600}
+.contact-list a{color:var(--white);font-size:19px;text-decoration-color:var(--pink);text-underline-offset:5px}
+.contact-list a:hover{color:var(--pink-soft)}
+.small{font-size:14px;color:#9E98A5;margin-top:48px}
+
+@media (max-width:860px){
+  nav ul{gap:14px;font-size:15px}
+  .hero,.tool,.teams,.split{grid-template-columns:1fr}
+  .tool:nth-of-type(even) .shot{order:0}
+  .fan{height:320px}
+  .work{grid-template-columns:1fr}
+  .work article,.work article.right{padding:24px 0;border-left:0}
+  .skills{grid-template-columns:1fr}
+}
+@media (max-width:520px){nav ul li:nth-child(n+3){display:none}.fan{height:250px}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav aria-label="Main">
+    <a class="mark" href="#top">Rahama Saleh</a>
+    <ul>
+      <li><a href="#ktl">Training tools</a></li>
+      <li><a href="#work">Projects</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero" id="top">
+    <span class="glow g1" aria-hidden="true"></span>
+    <span class="glow g2" aria-hidden="true"></span>
+    <div>
+      <h1 class="who">Hi, my name is Rahama Saleh. I am passionate about technology, products and people.</h1>
+      <p class="lede">I have a First Class degree in Applied Computing and have worked in IT since 2018. Whether I am testing a platform before launch or building a training tool from scratch, I always start with the same question: what does the person using this actually need?</p>
+      <div class="actions">
+        <a class="btn solid" href="#ktl">See my work</a>
+        <a class="btn ghost" href="Rahama%20Saleh%20CV.pdf">Download my CV</a>
+      </div>
+    </div>
+    <div class="fan" aria-label="Screens from three training tools I built">
+      <a href="ktl/KTL_Case_Notes_Practice.html" aria-label="Open Case Notes Training"><img src="assets/casenotes.png" alt="Case Notes Training quiz screen"></a>
+      <a href="ktl/KTL_Risk_Assessment_Practice.html" aria-label="Open Risk Assessment Practice"><img src="assets/risk.png" alt="Risk Assessment Practice screen with HSE steps"></a>
+      <a href="ktl/KTL_Cleaning_Game.html" aria-label="Open KTL Home Skills"><img src="assets/homeskills.png" alt="KTL Home Skills rubbish sorting game"></a>
+    </div>
+  </header>
+</div>
+
+<section class="featured" id="ktl">
+  <div class="wrap">
+    <h2>Training tools I built at Key Transitions</h2>
+    <p class="lede">Key Transitions helps young people aged 18 to 25, including asylum seekers, move into independent living. While working there in admin and IT support, I noticed staff were learning from static documents and many of the young people needed support in their own language. So I built three interactive tools to help.</p>
+    <ul class="facts">
+      <li>3 tools built</li>
+      <li>13 languages</li>
+      <li>Promoted within 3 months</li>
+      <li>Signed off by management before rollout</li>
+    </ul>
+
+    <div class="tool">
+      <div class="shot"><img src="assets/casenotes.png" alt="Case Notes Training" loading="lazy"></div>
+      <div>
+        <p class="who-for">For support staff</p>
+        <h3>Case Notes Training</h3>
+        <p>Helps staff write clear, factual case notes. They work through real scenarios, draft a note and get instant feedback on anything missing.</p>
+        <a class="play" href="ktl/KTL_Case_Notes_Practice.html">Try Case Notes Training</a>
+      </div>
+    </div>
+
+    <div class="tool">
+      <div class="shot"><img src="assets/risk.png" alt="Risk Assessment Practice" loading="lazy"></div>
+      <div>
+        <p class="who-for">For support staff and managers</p>
+        <h3>Risk Assessment Practice</h3>
+        <p>Walks staff through a risk assessment using the HSE five steps. Each risk is scored and colour coded as they go, and anything high risk is flagged for a manager to approve.</p>
+        <a class="play" href="ktl/KTL_Risk_Assessment_Practice.html">Try Risk Assessment Practice</a>
+      </div>
+    </div>
+
+    <div class="tool">
+      <div class="shot"><img src="assets/homeskills.png" alt="KTL Home Skills game" loading="lazy"></div>
+      <div>
+        <p class="who-for">For the young people KTL supports</p>
+        <h3>KTL Home Skills</h3>
+        <p>A drag and drop game that teaches everyday tasks like laundry, recycling and kitchen hygiene. It works in 13 languages, so young people can learn in the language they know best.</p>
+        <a class="play" href="ktl/KTL_Cleaning_Game.html">Play KTL Home Skills</a>
+      </div>
+    </div>
+
+    <div class="teams">
+      <img src="ktl/teams_result.jpg" alt="Microsoft Teams preview showing the KTL branded background" loading="lazy" style="border-radius:10px">
+      <div>
+        <h3>One background for every Teams call</h3>
+        <p>I suggested a branded Teams background so every call looked consistent and professional, then wrote a simple guide so anyone could set it up without needing IT.</p>
+        <a href="ktl/teams_guide.html">Read the Teams setup guide</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="work">
+  <div class="wrap">
+    <h2>Other projects</h2>
+    <p class="lede">A mix of testing, building and working with data.</p>
+    <div class="work">
+      <article class="wide">
+        <h3>Product and platform testing, TicketShack</h3>
+        <p class="meta">DMU Graduate Champions placement, August to September 2026</p>
+        <p>I tested a live ticketing platform from both sides, as an event organiser and as someone buying tickets, across iOS, Chrome and Safari. I found and reported issues like broken navigation and duplicate emails, tested new features before they went live and helped the founder shape a new referral scheme.</p>
+        <ul class="tags"><li>Test planning</li><li>Bug reporting</li><li>Cross device testing</li><li>Feature scoping</li></ul>
+      </article>
+      <article>
+        <h3>MedVerify: Medicine Verification System</h3>
+        <p class="meta">Dissertation, January to May 2025</p>
+        <p>My dissertation: an app that helps pharmacists check whether a medicine is genuine, counterfeit or expired. Every participant in user testing completed every task. I have since rebuilt it in code, so you can try it yourself.</p>
+        <div class="stats">
+          <div><div class="stat">100%</div><span>task completion</span></div>
+          <div><div class="stat">80%</div><span>positive usability ratings</span></div>
+        </div>
+        <div class="links">
+          <a href="https://rahamasaleh1.github.io/MedicineVerificationSystem/">Try the app</a>
+          <a href="https://github.com/rahamasaleh1/MedicineVerificationSystem">View on GitHub</a>
+        </div>
+      </article>
+      <article class="right">
+        <h3>Bank Marketing Analysis</h3>
+        <p class="meta">Business Intelligence, De Montfort University</p>
+        <p>I analysed 41,000 customer records to work out who is most likely to say yes to a bank's sales call. By calling only the top 20% of customers my model picked, the bank would reach 57% of everyone who signed up.</p>
+        <div class="stats">
+          <div><div class="stat">2.9x</div><span>better than calling at random</span></div>
+        </div>
+        <div class="links"><a href="https://github.com/rahamasaleh1/Bankmarketinganalysis">View on GitHub</a></div>
+      </article>
+      <article>
+        <h3>Power Plant Energy Prediction</h3>
+        <p class="meta">Duke University AI Product Management, Coursera</p>
+        <p>A machine learning model that predicts a power plant's energy output from four weather readings, built for Duke University's AI Product Management course on Coursera.</p>
+        <div class="stats">
+          <div><div class="stat">0.5%</div><span>average error</span></div>
+        </div>
+        <div class="links"><a href="https://github.com/rahamasaleh1/powerplantenergyprediction">View on GitHub</a></div>
+      </article>
+      <article class="right">
+        <h3>Subscription Leak Detector</h3>
+        <p class="meta">Personal project</p>
+        <p>A Python tool that reads a bank statement and finds the subscriptions you forgot you were paying for.</p>
+        <div class="stats">
+          <div><div class="stat">£839</div><span>a year found in the sample data</span></div>
+        </div>
+        <div class="links"><a href="https://github.com/rahamasaleh1/subscriptionleakdetector">View on GitHub</a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="experience" style="padding-top:0">
+  <div class="wrap split">
+    <div>
+      <h2>Experience</h2>
+      <ol class="timeline">
+        <li><span class="when">Current</span><h3>AI Data Quality Analyst (Freelance), Scale AI</h3><p>I review and improve the data used to train AI models, making sure it meets detailed quality standards.</p></li>
+        <li><span class="when">August to September 2026</span><h3>Product and Platform Tester, TicketShack</h3><p>Tested the platform end to end and sent the founder a findings report at the end of every day.</p></li>
+        <li><span class="when">March 2025 to January 2026</span><h3>Administrator/IT Support, Key Transitions Ltd</h3><p>Joined in admin and was promoted within three months. I built automated dashboards, kept records GDPR compliant, set staff up with secure sign in and created the training tools above.</p></li>
+        <li><span class="when">July to October 2020</span><h3>IT Service Desk Analyst, GFM Holdings Ltd</h3><p>Set users up with single sign on and two step verification.</p></li>
+        <li><span class="when">July 2018 to June 2020</span><h3>IT Service Desk, FGM Centre</h3><p>My first role in tech, helping staff with IT issues and keeping systems running smoothly.</p></li>
+      </ol>
+    </div>
+    <div>
+      <h2>Skills</h2>
+      <ul class="skills">
+        <li>QA and UAT testing</li><li>Jira</li>
+        <li>SQL and MySQL</li><li>Python</li>
+        <li>HTML, CSS and JavaScript</li><li>Bubble.io</li>
+        <li>Postman and REST APIs</li><li>Splunk</li>
+        <li>SSO and MFA administration</li><li>Microsoft 365 and Teams</li>
+        <li>User documentation</li><li>Usability evaluation</li>
+      </ul>
+      <h2 style="margin-top:48px">Education</h2>
+      <div class="edu" style="margin-top:18px">
+        <p><strong>BSc Applied Computing, First Class</strong>De Montfort University, 2022 to 2025</p>
+        <p><strong>CertHE Business Management</strong>University of Essex, 2020 to 2022</p>
+        <p><strong>Product Management: An Introduction</strong>IBM, via Coursera, September 2026. Achieved a grade of 96.9%. <a href="https://coursera.org/verify/83QRDOSFNTSO">Verify certificate</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <h2>Get in touch</h2>
+    <ul class="contact-list">
+      <li><span>Email</span><a href="mailto:rahamasaleh2000@gmail.com">rahamasaleh2000@gmail.com</a></li>
+      <li><span>LinkedIn</span><a href="https://www.linkedin.com/in/rahamasaleh1">linkedin.com/in/rahamasaleh1</a></li>
+      <li><span>GitHub</span><a href="https://github.com/rahamasaleh1">github.com/rahamasaleh1</a></li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>

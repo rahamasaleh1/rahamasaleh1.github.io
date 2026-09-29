@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KTL Case Notes Training</title>
+<style>
+:root {
+  --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b;
+  --ok: #059669; --ok-bg: #d1fae5; --bad: #dc2626; --bad-bg: #fee2e2;
+  --border: #e2e8f0; --accent: #3b82f6; --accent-hover: #2563eb;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+[data-theme="dark"] { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --muted: #94a3b8; --border: #334155; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;line-height:1.6;transition:background .3s,color .3s}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 16px}
+.header{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.header::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#3b82f6,#8b5cf6,#ec4899)}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px;background:#eff6ff;color:#1e40af}
+h1{font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:var(--muted);font-size:15px}
+.timer-box{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);padding:8px 16px;border-radius:12px;font-size:14px;font-weight:600}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+h2{font-size:20px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.icon{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center}
+.scenario{background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border:1px solid #bae6fd;border-radius:12px;padding:20px;margin-bottom:16px;position:relative;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.scenario-badge{font-size:11px;font-weight:700;color:#0369a1;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.scenario p{margin:8px 0}
+.choices{display:grid;gap:10px;margin-top:14px}
+.choice{border:2px solid var(--border);border-radius:12px;padding:14px;background:var(--card);display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:all .2s}
+.choice:hover{border-color:var(--accent);transform:translateX(4px)}
+.choice input{margin-top:4px;cursor:pointer;width:18px;height:18px;accent-color:var(--accent)}
+.choice.correct{border-color:var(--ok);background:var(--ok-bg)}
+.choice.incorrect{border-color:var(--bad);background:var(--bad-bg)}
+.feedback{margin-top:12px;padding:12px;border-radius:10px;font-size:14px;display:none;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.feedback.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok)}
+.feedback.bad{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad)}
+button{border:1px solid var(--border);background:var(--card);color:var(--text);padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+button:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--shadow)}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.primary:hover:not(:disabled){background:var(--accent-hover)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.progress-container{margin-top:16px}
+.progress{height:12px;background:var(--border);border-radius:999px;overflow:hidden;position:relative}
+.bar{height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);transition:width .4s cubic-bezier(.4,0,.2,1);position:relative}
+.bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shimmer 2s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.progress-text{margin-top:8px;font-size:14px;color:var(--muted);font-weight:600}
+.writegrid{display:grid;gap:20px;margin-top:20px}
+@media(min-width:900px){.writegrid{grid-template-columns:1.3fr 1fr}}
+textarea{width:100%;min-height:180px;border:2px solid var(--border);border-radius:12px;padding:14px;font-family:inherit;font-size:15px;resize:vertical;transition:border-color .2s;background:var(--card);color:var(--text)}
+textarea:focus{outline:none;border-color:var(--accent)}
+.lint{margin-top:10px;padding:10px;border-radius:8px;font-size:13px;background:#f1f5f9;color:var(--muted)}
+.lint.good{background:var(--ok-bg);color:var(--ok)}
+.lint.warning{background:#fef3c7;color:#92400e}
+.lint.bad{background:var(--bad-bg);color:var(--bad)}
+.checklist{display:grid;gap:10px}
+.checklist label{display:flex;align-items:center;gap:12px;padding:12px;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s}
+.checklist label:hover{border-color:var(--accent);transform:translateX(2px)}
+.checklist input:checked+span{text-decoration:line-through;opacity:.7}
+.checklist input{width:20px;height:20px;cursor:pointer;accent-color:var(--accent)}
+.score-display{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:2px solid #3b82f6;border-radius:12px;padding:20px;text-align:center;margin-top:16px;display:none}
+.score-display.show{display:block;animation:bounceIn .5s ease}
+@keyframes bounceIn{0%{transform:scale(.8);opacity:0}50%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.score-number{font-size:48px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.score-label{font-size:16px;color:var(--muted);margin-top:8px}
+.hint-box{background:#fef3c7;border:1px solid #fbbf24;border-radius:10px;padding:12px;margin-top:10px;font-size:13px;display:none}
+.hint-box.show{display:block;animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.example-notes{margin-top:16px;padding:14px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px}
+.example-notes h3{font-size:14px;font-weight:700;color:#166534;margin-bottom:8px}
+.example-notes p{font-size:13px;color:#15803d;margin:6px 0;padding-left:12px;border-left:2px solid #86efac}
+.footer{text-align:center;color:var(--muted);font-size:13px;margin-top:32px;padding-top:20px;border-top:1px solid var(--border)}
+.toggle-theme{background:var(--card);border:1px solid var(--border);padding:8px;border-radius:8px;cursor:pointer;font-size:20px}
+@media print{.controls,.btnrow,button{display:none!important}.card{box-shadow:none;page-break-inside:avoid}}
+.celebration{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:40px;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;z-index:1000;display:none}
+.celebration.show{display:block;animation:popIn .5s cubic-bezier(.68,-.55,.265,1.55)}
+@keyframes popIn{0%{transform:translate(-50%,-50%) scale(0)}100%{transform:translate(-50%,-50%) scale(1)}}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none}
+.overlay.show{display:block}
+/* Dark-mode contrast fixes */
+[data-theme="dark"] .timer-box{background:var(--card);border:1px solid var(--border);} 
+[data-theme="dark"] .scenario{background:linear-gradient(135deg,#0b1a2e 0%,#0f2745 100%);border:1px solid #1f3a8a;}
+[data-theme="dark"] .progress{background:#1f2937;}
+[data-theme="dark"] .feedback.ok{background:rgba(5,150,105,.15);color:#34d399;border-color:#10b981}
+[data-theme="dark"] .feedback.bad{background:rgba(220,38,38,.15);color:#f87171;border-color:#ef4444}
+[data-theme="dark"] .hint-box{background:#2d2612;border-color:#f59e0b;color:#fcd34d}
+[data-theme="dark"] .example-notes{background:#052e1c;border-color:#166534}
+[data-theme="dark"] .score-display{background:linear-gradient(135deg,#0b1a2e,#0f2745);border-color:#3b82f6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <h1>Case Notes</h1>
+      </div>
+      <div class="timer-box"><span>⏱️</span><span id="timer">00:00</span></div>
+    </div>
+    <div class="controls">
+      <button id="toggleTheme" class="toggle-theme" title="Toggle dark mode">🌙</button>
+      <button id="refresh">🔄 Start Fresh</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="icon">❓</span>Knowledge Check</h2>
+    <div id="qContainer"></div>
+    <div class="btnrow">
+      <button id="checkAll" class="primary" disabled>✓ Check All Answers</button>
+      <button id="showHints">💡 Show Hints</button>
+      <button id="resetAll">↺ Reset Quiz</button>
+    </div>
+    <div id="scoreDisplay" class="score-display">
+      <div class="score-number" id="scoreNumber">0/0</div>
+      <div class="score-label" id="scoreLabel">Keep practicing!</div>
+    </div>
+  </div>
+
+  <div class="writegrid">
+    <div class="card">
+      <h2><span class="icon">✍️</span>Draft Your Note</h2>
+      <textarea id="draft" placeholder="Write your case note here... Include: date/time, what happened, direct quotes (if any), your response/action, and next steps."></textarea>
+      <div id="lint" class="lint">Start typing to receive feedback...</div>
+      <div id="exampleNotes" class="example-notes" style="display:none;">
+        <h3>✓ Example Good Note:</h3>
+        <p>"14/03/24 @ 15:30 - Offered MG her scheduled keywork session. She stated 'I'm not doing it today' and went to her room. Respected her choice and left information about rescheduling. Will follow up tomorrow AM."</p>
+      </div>
+      <div class="btnrow">
+        <button id="copy">📋 Copy Draft</button>
+        <button id="showExample">📝 Show Example</button>
+        <button id="clear">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="icon">✅</span>Quality Checklist</h2>
+      <div class="checklist">
+        <label><input type="checkbox" class="ck" value="dt"><span>Date & time included</span></label>
+        <label><input type="checkbox" class="ck" value="obj"><span>Objective, factual language</span></label>
+        <label><input type="checkbox" class="ck" value="quote"><span>Exact words in quotation marks (if used)</span></label>
+        <label><input type="checkbox" class="ck" value="action"><span>Staff response/action recorded</span></label>
+        <label><input type="checkbox" class="ck" value="next"><span>Next steps/plan where relevant</span></label>
+      </div>
+      <div class="progress-container">
+        <div class="progress"><div id="bar" class="bar"></div></div>
+        <div id="pct" class="progress-text">0% complete</div>
+      </div>
+      <div class="btnrow">
+        <button id="submitMail" class="primary">📧 Send Completion</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p><strong>Key Transitions Ltd</p>
+    <p style="margin-top:8px;font-size:12px;">Your progress is automatically saved • Press R to reset quiz</p>
+  </div>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="celebration" id="celebration">
+  <div style="font-size:64px;margin-bottom:16px;">🎉</div>
+  <h2 style="margin-bottom:12px;">Perfect Score!</h2>
+  <p style="color:var(--muted);">You've mastered case note documentation</p>
+  <button id="celebrationClose" class="primary" style="margin-top:20px;">Continue</button>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'ktl_training_progress';
+  const trainerEmail = ''; // Portfolio copy: recipient removed
+
+  // Timer
+  let startTime = Date.now();
+  let timerHandle;
+  function updateTimer(){
+    const elapsed = Math.floor((Date.now()-startTime)/1000);
+    const m = String(Math.floor(elapsed/60)).padStart(2,'0');
+    const s = String(elapsed%60).padStart(2,'0');
+    document.getElementById('timer').textContent = `${m}:${s}`;
+  }
+  timerHandle = setInterval(updateTimer,1000);
+
+  // Theme
+  const themeBtn = document.getElementById('toggleTheme');
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  themeBtn.textContent = savedTheme==='dark' ? '☀️' : '🌙';
+  themeBtn.addEventListener('click',()=>{
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    themeBtn.textContent = next==='dark' ? '☀️' : '🌙';
+  });
+
+  // Question bank
+  const qbank = [
+    { id:'q1', scenario:'<strong>MG (17)</strong> refuses a planned support meeting and shouts when reminded.', stem:'Which record is best?', hint:'Think about the difference between describing behavior vs. making judgments about character.', options:[
+      {t:'<strong>A</strong> – "MG was rude and lazy today."', ok:false, fbBad:'Subjective labels. Keep notes neutral and factual.'},
+      {t:'<strong>B</strong> – "MG refused her meeting and shouted at staff when reminded."', ok:true, fbOK:'✓ Objective and factual, records what happened without judgement.'}
+    ]},
+    { id:'q2', scenario:'At 22:15 SB, who has no curfew, left the placement with no agreed overnight stay. Attempts to contact her were unsuccessful. She returned at 09:10 the next day.', stem:'What should this be recorded as?', hint:'Consider whether there was prior agreement and whether whereabouts were known.', options:[
+      {t:'Unauthorised overnight', ok:true, fbOK:'✓ Correct – no agreement in place and they stayed out overnight.'},
+      {t:'Authorised overnight', ok:false, fbBad:'Incorrect – there was no prior agreement.'},
+      {t:'Missing', ok:false, fbBad:'Only use "Missing" when whereabouts are unknown and/or the risk threshold isn\'t met.'}
+    ]},
+    { id:'q3', scenario:'You are writing a Case note after a planned keywork session.', stem:'What must a good case note include? (Select all that apply)', hint:'Focus on observable facts and professional actions, not assumptions.', multi:true, options:[
+      {t:'What happened (events and engagement)', ok:true},
+      {t:'Your neutral professional assessment where relevant', ok:true},
+      {t:'Assuming their reasons, thoughts or feelings. ("they don\'t care")', ok:false},
+      {t:'Next steps or follow up plan where relevant', ok:true}
+    ]},
+    { id:'q4', scenario:'A young person tells you: "Leave me alone. I\'m not going."', stem:'How should this appear in your note?', hint:'Exact words preserve accuracy and protect against misinterpretation.', options:[
+      {t:'Paraphrased without quotes', ok:false},
+      {t:'Exact words in quotation marks', ok:true},
+      {t:'Summarised as "refused rudely"', ok:false}
+    ]},
+    { id:'q5', scenario:'A care leaver asks how they can read what has been recorded about them.', stem:'Which statement is accurate?', hint:'Data protection rights give individuals access to their own information.', options:[
+      {t:'They have a right to access their case files; records must be processed fairly, accurately and securely.', ok:true},
+      {t:'Only staff and managers may access case files.', ok:false},
+      {t:'Files cannot be requested from the Local Authority.', ok:false}
+    ]}
+  ];
+
+  const container = document.getElementById('qContainer');
+
+  function render(){
+    container.innerHTML = '';
+    qbank.forEach((q,idx)=>{
+      const block = document.createElement('div');
+      block.className = 'scenario';
+      block.dataset.qid = q.id;
+      block.innerHTML = `
+        <div class="scenario-badge">Scenario ${idx+1} of ${qbank.length}</div>
+        <p>${q.scenario}</p>
+        <p style="margin-top:12px;"><em>${q.stem}${q.multi? ' <span style="font-size:11px;color:#6b7280;">(Select all that apply)</span>':''}</em></p>
+      `;
+      if(q.hint){
+        const hintDiv = document.createElement('div');
+        hintDiv.className = 'hint-box';
+        hintDiv.id = `${q.id}_hint`;
+        hintDiv.innerHTML = `💡 <strong>Hint:</strong> ${q.hint}`;
+        block.appendChild(hintDiv);
+      }
+      const list = document.createElement('div');
+      list.className = 'choices';
+      q.options.forEach((opt,i)=>{
+        const row = document.createElement('label');
+        row.className = 'choice';
+        row.dataset.qid = q.id;
+        row.dataset.idx = i;
+        const id = `${q.id}_${i}`;
+        const input = document.createElement('input');
+        input.type = q.multi ? 'checkbox' : 'radio';
+        input.name = q.id;
+        input.value = i;
+        input.id = id;
+        row.appendChild(input);
+        const span = document.createElement('span');
+        span.innerHTML = opt.t;
+        row.appendChild(span);
+        list.appendChild(row);
+      });
+      const fb = document.createElement('div');
+      fb.className = 'feedback';
+      fb.id = `${q.id}_fb`;
+      block.appendChild(list);
+      block.appendChild(fb);
+      container.appendChild(block);
+    });
+  }
+  render();
+
+  // Hints toggle
+  document.getElementById('showHints').addEventListener('click',()=>{
+    qbank.forEach(q=>{
+      const el = document.getElementById(`${q.id}_hint`);
+      if(el) el.classList.toggle('show');
+    });
+  });
+
+  // enable Check All when all answered
+  const checkAllBtn = document.getElementById('checkAll');
+  container.addEventListener('change',()=>{
+    const allAnswered = qbank.every(q=>!!document.querySelector(`input[name="${q.id}"]:checked`));
+    checkAllBtn.disabled = !allAnswered;
+    saveProgress();
+  });
+
+  // Check answers
+  function checkAnswers(){
+    let correct = 0;
+    qbank.forEach(q=>{
+      const chosen = Array.from(document.querySelectorAll(`input[name="${q.id}"]`)).filter(i=>i.checked).map(i=>+i.value);
+      const okIdx = q.options.map((o,i)=>o.ok?i:null).filter(v=>v!==null);
+      const isRight = chosen.length===okIdx.length && chosen.every(v=>okIdx.includes(v));
+      if(isRight) correct++;
+      // Visual feedback
+      q.options.forEach((opt,i)=>{
+        const label = container.querySelector(`label.choice[data-qid="${q.id}"][data-idx="${i}"]`);
+        label.classList.remove('correct','incorrect');
+        const picked = chosen.includes(i);
+        if(picked){
+          label.classList.add(opt.ok?'correct':'incorrect');
+        } else if(!q.multi && opt.ok){
+          // mark the correct one in single-choice
+          label.classList.add('correct');
+        }
+      });
+      const fb = document.getElementById(`${q.id}_fb`);
+      if(fb){
+        fb.style.display = 'block';
+        if(isRight){ fb.className = 'feedback ok'; fb.textContent = (q.options.find(o=>o.fbOK)?.fbOK) || '✓ Correct'; }
+        else { fb.className = 'feedback bad'; fb.textContent = (q.options.find((o,i)=>chosen.includes(i)&&o.fbBad)?.fbBad) || 'Not quite – check the hint.'; }
+      }
+    });
+    const score = `${correct}/${qbank.length}`;
+    document.getElementById('scoreNumber').textContent = score;
+    const label = document.getElementById('scoreLabel');
+    label.textContent = correct===qbank.length ? 'Outstanding!' : correct>=Math.ceil(qbank.length*0.7) ? 'Great job – nearly there.' : 'Keep practicing!';
+    const sd = document.getElementById('scoreDisplay');
+    sd.classList.add('show');
+    const er = document.getElementById('emailReminder'); if (er) er.style.display = 'block';
+    if(correct===qbank.length){
+      document.getElementById('overlay').classList.add('show');
+      document.getElementById('celebration').classList.add('show');
+    }
+  }
+  checkAllBtn.addEventListener('click', ()=>{ clearInterval(timerHandle); checkAnswers(); });
+
+  // Reset quiz
+  document.getElementById('resetAll').addEventListener('click',()=>{
+    document.querySelectorAll('#qContainer input').forEach(i=>{ i.checked=false; });
+    document.querySelectorAll('label.choice').forEach(l=>l.classList.remove('correct','incorrect'));
+    document.querySelectorAll('.feedback').forEach(f=>{ f.style.display='none'; f.textContent=''; f.className='feedback'; });
+    document.getElementById('scoreDisplay').classList.remove('show');
+    checkAllBtn.disabled = true;
+    saveProgress();
+  });
+
+  // Celebration close
+  document.getElementById('celebrationClose').addEventListener('click',()=>{
+    document.getElementById('celebration').classList.remove('show');
+    document.getElementById('overlay').classList.remove('show');
+  });
+
+  // Draft linting
+  const draft = document.getElementById('draft');
+  const lint = document.getElementById('lint');
+  function updateLint(){
+    const t = draft.value;
+    const hasDate = /(\b\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b|\b\d{1,2}:\d{2}\b)/.test(t);
+    const hasQuote = /".+"|'.+'/.test(t);
+    const hasAction = /(I|we|staff)\s+(offered|advised|contacted|supported|signposted|followed up|escalated|called|emailed|completed)/i.test(t);
+    const hasNext = /(will|to)\s+(follow up|review|monitor|contact|arrange|escalate)/i.test(t);
+    const msgs = [];
+    if(!hasDate) msgs.push('Add date/time.');
+    if(!hasAction) msgs.push('Record staff action.');
+    if(!hasNext) msgs.push('Include next steps if relevant.');
+    lint.className = 'lint ' + (msgs.length===0 ? 'good' : msgs.length<=2 ? 'warning' : 'bad');
+    lint.textContent = msgs.length===0 ? 'Looks good. ✓' : 'Suggestions: ' + msgs.join(' ');
+  }
+  draft.addEventListener('input', ()=>{ updateLint(); saveProgress(); });
+
+  // Example toggle
+  document.getElementById('showExample').addEventListener('click',()=>{
+    const ex = document.getElementById('exampleNotes');
+    ex.style.display = ex.style.display==='none' ? 'block' : 'none';
+  });
+
+  // Copy, Clear
+  document.getElementById('copy').addEventListener('click', async ()=>{
+    try{ await navigator.clipboard.writeText(draft.value); alert('Draft copied to clipboard.'); }catch(e){ alert('Copy failed – select text and copy manually.'); }
+  });
+  document.getElementById('clear').addEventListener('click',()=>{ draft.value=''; updateLint(); saveProgress(); });
+
+  // Print and refresh
+  
+  document.getElementById('refresh').addEventListener('click',()=>location.reload());
+
+  // Checklist progress
+  const cks = Array.from(document.querySelectorAll('.ck'));
+  function updateProgress(){
+    const total = cks.length;
+    const done = cks.filter(c=>c.checked).length;
+    const pct = Math.round((done/total)*100);
+    document.getElementById('bar').style.width = pct+'%';
+    document.getElementById('pct').textContent = pct + '% complete';
+  }
+  cks.forEach(c=>c.addEventListener('change',()=>{ updateProgress(); saveProgress(); }));
+
+  // Send via email (mailto – simplest, no backend)
+  document.getElementById('submitMail').addEventListener('click',()=>{
+    // Compose a simple summary body
+    const score = document.getElementById('scoreNumber').textContent;
+    const checks = cks.filter(c=>c.checked).map(c=>c.value).join(', ');
+    const body = encodeURIComponent(
+      `Training completion summary\n\nScore: ${score}\nChecklist: ${checks || 'None'}\nTime spent: ${document.getElementById('timer').textContent}\n\nDraft note:\n${draft.value}`
+    );
+    const subject = encodeURIComponent('Case Notes Training – Completion');
+    window.location.href = `mailto:${trainerEmail}?subject=${subject}&body=${body}`;
+  });
+
+  // Save/load progress
+  function saveProgress(){
+    try{
+      const data = {
+        draft: draft.value,
+        checklist: cks.filter(c=>c.checked).map(c=>c.value),
+        answers: qbank.map(q=>({ id:q.id, chosen: Array.from(document.querySelectorAll(`input[name="${q.id}"]`)).filter(i=>i.checked).map(i=>+i.value) })),
+        ts: Date.now()
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }catch(e){}
+  }
+  function loadProgress(){
+    try{
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+      if(!saved) return;
+      draft.value = saved.draft || '';
+      (saved.checklist||[]).forEach(v=>{ const el = document.querySelector(`.ck[value="${v}"]`); if(el) el.checked = true; });
+      (saved.answers||[]).forEach(a=>{ a.chosen.forEach(i=>{ const el = document.getElementById(`${a.id}_${i}`); if(el) el.checked = true; }); });
+      updateProgress();
+      updateLint();
+      const allAnswered = qbank.every(q=>!!document.querySelector(`input[name="${q.id}"]:checked`));
+      checkAllBtn.disabled = !allAnswered;
+    }catch(e){}
+  }
+  loadProgress();
+
+  // Keyboard shortcut R = reset quiz
+  document.addEventListener('keydown',(e)=>{ if((e.key==='r'||e.key==='R') && !e.target.matches('input,textarea')){ e.preventDefault(); document.getElementById('resetAll').click(); }});
+})();
+</script>
+</body>
+</html>

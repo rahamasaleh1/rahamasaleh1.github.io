@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KTL Risk Assessment</title>
+<style>
+  :root{
+    --bg:#f8f9fa; --card:#ffffff; --text:#1a202c; --muted:#64748b;
+    --border:#e2e8f0; --accent:#3b82f6; --accent-hover:#2563eb;
+    --ok:#059669; --med:#d97706; --high:#dc2626; --vhigh:#991b1b;
+    --lowbg:#d1fae5; --medbg:#fef3c7; --highbg:#fee2e2; --vhighbg:#fecaca;
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  }
+  [data-theme="dark"]{
+    --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8; --border:#334155;
+    --lowbg:rgba(5,150,105,.15); --medbg:rgba(217,119,6,.15); --highbg:rgba(220,38,38,.15); --vhighbg:#7f1d1d;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.6;transition:background .2s,color .2s}
+  .wrap{max-width:1200px;margin:32px auto;padding:20px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;box-shadow:var(--shadow);margin-bottom:20px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  h1{font-size:28px;margin:0 0 8px;font-weight:700;color:var(--text)}
+  .hint{font-size:14px;color:var(--muted);line-height:1.5}
+  .toggle{border:1px solid var(--border);background:var(--card);padding:8px 12px;border-radius:10px;cursor:pointer}
+  input[type="text"], input[type="date"], select, textarea{
+    width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:10px;
+    font-family:inherit;font-size:15px;transition:all 0.2s ease;background:var(--card);color:var(--text)
+  }
+  input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus{
+    outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1)
+  }
+  textarea{min-height:100px;resize:vertical}
+  .grid{display:grid;gap:16px}
+  @media(min-width:900px){ .grid.two{grid-template-columns:1fr 1fr} }
+  .btnrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+  button{border:1px solid var(--border);background:var(--card);color:var(--text);padding:12px 20px;border-radius:10px;
+    cursor:pointer;font-weight:600;font-size:15px;transition:all 0.2s ease;box-shadow:var(--shadow)}
+  button:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+  button:active{transform:translateY(0)}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.primary:hover{background:var(--accent-hover)}
+  button:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+  details{border:1px solid var(--border);border-radius:12px;background:rgba(0,0,0,0.02);padding:16px;margin:16px 0;transition:all 0.2s}
+  details[open]{background:var(--card);box-shadow:var(--shadow)}
+  details>summary{cursor:pointer;font-weight:600;font-size:16px;padding:4px;user-select:none}
+  details>summary:hover{color:var(--accent)}
+  .box{border:1px solid var(--border);border-radius:12px;padding:16px;background:rgba(0,0,0,0.02);margin:8px 0}
+  .footer{font-size:13px;color:var(--muted);margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+  /* Hazard table */
+  .table-container{overflow-x:auto;margin:12px 0}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border:1px solid var(--border);padding:10px;text-align:left;vertical-align:middle}
+  th{background:rgba(0,0,0,0.03);font-weight:600;color:var(--text)}
+  tr.disabled{opacity:.45}
+  tr:not(.disabled):hover{background:rgba(0,0,0,0.02)}
+  .band{font-weight:700; padding:5px 10px; border-radius:6px; display:inline-block;font-size:13px}
+  .low{color:var(--ok); background:var(--lowbg)}
+  .medium{color:var(--med); background:var(--medbg)}
+  .high{color:var(--high); background:var(--highbg)}
+  .veryhigh{color:#fff; background:var(--vhigh)}
+  .matrix{table-layout:fixed;font-size:13px}
+  .matrix td{height:32px;text-align:center;font-weight:600}
+  .m-low{background:var(--lowbg);color:var(--ok)}
+  .m-med{background:var(--medbg);color:var(--med)}
+  .m-high{background:var(--highbg);color:var(--high)}
+  .m-vhigh{background:#ef4444;color:#fff}
+  .req{color:#dc2626;font-weight:600}
+  .error{border-color:#dc2626 !important; box-shadow:0 0 0 3px rgba(220,38,38,.15) !important}
+  .legend{font-size:13px;color:#475569;margin-top:8px}
+  .progress{height:10px;background:rgba(59,130,246,0.15);border-radius:999px;overflow:hidden;margin:12px 0 8px}
+  .bar{height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#2563eb);transition:width .4s ease}
+  input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--accent)}
+  label{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 0}
+  label:hover{color:var(--accent)}
+  .alert{padding:14px 18px;border-radius:10px;margin:16px 0;font-size:14px;display:flex;gap:12px;align-items:start}
+  .alert-warning{background:#fef3c7;border:1px solid #fbbf24;color:#92400e}
+  .alert-success{background:#d1fae5;border:1px solid #34d399;color:#065f46}
+  .alert-error{background:#fee2e2;border:1px solid #ef4444;color:#991b1b}
+  .alert-icon{font-size:20px}
+  .summary-preview{background:rgba(0,0,0,0.03);border:1px solid var(--border);border-radius:10px; padding:16px;font-family:'Courier New',monospace;font-size:13px;white-space:pre-wrap; max-height:300px;overflow-y:auto;display:none}
+  .summary-preview.show{display:block}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0}
+  .stat-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff;padding:16px;border-radius:10px;text-align:center}
+  .stat-card.warning{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%)}
+  .stat-card.success{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)}
+  .stat-value{font-size:28px;font-weight:700;margin:4px 0}
+  .stat-label{font-size:12px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px}
+  @media(max-width:768px){ .wrap{padding:12px;margin:16px auto} .card{padding:20px} h1{font-size:24px} table{font-size:13px} th,td{padding:8px} }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="card">
+    <header>
+      <h1>KTL Risk Assessment</h1>
+      <button id="toggleTheme" class="toggle" aria-label="Toggle dark mode">🌙</button>
+    </header>
+    <p class="hint">Score each relevant hazard (Likelihood × Severity). Colour bands update automatically. Required fields are marked <span class="req">*</span>.</p>
+
+    <div id="statsContainer" class="stats" style="display:none">
+      <div class="stat-card">
+        <div class="stat-value" id="statHazards">0</div>
+        <div class="stat-label">Hazards Assessed</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-value" id="statHighest">—</div>
+        <div class="stat-label">Highest Risk</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-value" id="statProgress">0%</div>
+        <div class="stat-label">Completion</div>
+      </div>
+    </div>
+
+    <details open>
+      <summary>Key information (HSE & KTL)</summary>
+      <div class="grid two">
+        <div class="box">
+          <h2>HSE – 5 steps</h2>
+          <ol>
+            <li>Identify <strong>hazards</strong>.</li>
+            <li>Decide <strong>who might be harmed</strong> and how.</li>
+            <li><strong>Evaluate</strong> risks (likelihood × severity) and choose precautions.</li>
+            <li><strong>Record</strong> findings (existing and further controls).</li>
+            <li><strong>Review</strong> regularly and after changes/incidents.</li>
+          </ol>
+        </div>
+        <div class="box">
+          <h2>KTL essentials</h2>
+          <ul>
+            <li>Use KTL Placement RA; use <strong>Lone Working RA</strong> where relevant.</li>
+            <li>Review at least <strong>every 6 months</strong> or after significant change; manager sign-off required.</li>
+            <li>Explicitly cover: violence/aggression (verbal, threats, physical/sexual, weapons), substance misuse, missing episodes, mental health, environmental & lone-working risks.</li>
+            <li>Follow Local Safe Working Procedures; use buddy/check-in systems when lone working.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>Risk matrix (guide)</h2>
+      <div class="grid two">
+        <div class="box">
+          <table class="matrix" aria-label="Risk Matrix">
+            <tr><th></th><th colspan="5">Severity →</th></tr>
+            <tr>
+              <th>Likelihood ↓</th>
+              <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+            </tr>
+            <tr><th>1</th><td class="m-low">1</td><td class="m-low">2</td><td class="m-low">3</td><td class="m-med">4</td><td class="m-med">5</td></tr>
+            <tr><th>2</th><td class="m-low">2</td><td class="m-low">4</td><td class="m-med">6</td><td class="m-med">8</td><td class="m-high">10</td></tr>
+            <tr><th>3</th><td class="m-low">3</td><td class="m-med">6</td><td class="m-med">9</td><td class="m-high">12</td><td class="m-high">15</td></tr>
+            <tr><th>4</th><td class="m-med">4</td><td class="m-med">8</td><td class="m-high">12</td><td class="m-high">16</td><td class="m-vhigh">20</td></tr>
+            <tr><th>5</th><td class="m-med">5</td><td class="m-high">10</td><td class="m-high">15</td><td class="m-vhigh">20</td><td class="m-vhigh">25</td></tr>
+          </table>
+          <p class="legend">Bands: <span class="band low">Low</span> (≤5) • <span class="band medium">Medium</span> (6–10) • <span class="band high">High</span> (11–16) • <span class="band veryhigh">Very High</span> (≥17)</p>
+        </div>
+        <div class="box">
+          <p class="hint">Score <strong>each hazard you tick</strong> using the 1–5 scales. Focus controls on items with the <strong>highest scores</strong> and anything with a <strong>Very High</strong> band.</p>
+        </div>
+      </div>
+    </details>
+
+    <h2>Your details</h2>
+    <div class="grid two">
+      <div><label for="who">Staff name <span class="req">*</span></label><input id="who" type="text" placeholder="First Last"></div>
+      <div><label for="role">Role</label><input id="role" type="text" placeholder="Support Worker / Team Leader"></div>
+    </div>
+    <div class="grid two">
+      <div><label for="site">Location / Service</label><input id="site" type="text" placeholder="e.g., 24/7 Supported Accommodation"></div>
+      <div><label for="review">Review date</label><input id="review" type="date"></div>
+    </div>
+
+    <h2>Scenario / activity being assessed <span class="req">*</span></h2>
+    <textarea id="scenario" placeholder="Brief description – e.g., Home visit with client (17). History of verbal aggression when reminded about meetings. Lone working likely for first 30 minutes."></textarea>
+
+    <div id="valAlert" class="alert alert-error" style="display:none"><span class="alert-icon">❗</span><div id="valMsg">Please complete required fields.</div></div>
+
+    <div id="highRiskAlert" class="alert alert-warning" style="display:none">
+      <span class="alert-icon">⚠️</span>
+      <div>
+        <strong>High Risk Detected</strong><br>
+        You have assessed one or more hazards as High or Very High risk. Ensure comprehensive controls are documented and manager approval is obtained before proceeding.
+      </div>
+    </div>
+
+    <h2>Step 1–3: Hazards & scoring <span class="req">*</span></h2>
+    <div class="box">
+      <div class="table-container">
+        <table id="hazTable" aria-label="Hazards table">
+          <thead>
+            <tr>
+              <th style="width:40px;">✓</th>
+              <th>Hazard</th>
+              <th style="width:180px;">Likelihood (1–5)</th>
+              <th style="width:180px;">Severity (1–5)</th>
+              <th style="width:80px;">Score</th>
+              <th style="width:130px;">Band</th>
+            </tr>
+          </thead>
+          <tbody id="hazBody"></tbody>
+        </table>
+      </div>
+      <label style="display:block;margin-top:12px;">Hazard notes
+        <textarea id="hazardNotes" placeholder="Detail specific triggers/places/times, weapons access, etc."></textarea>
+      </label>
+    </div>
+
+    <h2>Step 2: Who might be harmed and how?</h2>
+    <div class="box">
+      <div class="grid two">
+        <label><input type="checkbox" class="wh" value="Young person (self)"> Young person (self)</label>
+        <label><input type="checkbox" class="wh" value="Staff (incl. lone workers)"> Staff (incl. lone workers)</label>
+        <label><input type="checkbox" class="wh" value="Other residents / young people"> Other residents / young people</label>
+        <label><input type="checkbox" class="wh" value="Visitors / professionals"> Visitors / professionals</label>
+        <label><input type="checkbox" class="wh" value="Members of the public / neighbours"> Members of the public / neighbours</label>
+      </div>
+      <textarea id="harmNotes" placeholder="Briefly explain how harm could occur (e.g., escalation during boundaries; risk of objects being thrown)."></textarea>
+    </div>
+
+    <h2>Step 3: Controls (existing & further)</h2>
+    <div class="box">
+      <label>Existing control measures
+        <textarea id="existing" placeholder="E.g., De-escalation training; 2:1 staffing after 20:00; check-in every 30m; incident reporting."></textarea>
+      </label>
+      <label style="margin-top:12px;">Further control measures
+        <textarea id="further" placeholder="E.g., CAMHS referral; remove sharps; clear exits; buddy system; offer alternative meeting time."></textarea>
+      </label>
+    </div>
+
+    <h2>Lone working arrangements (if applicable)</h2>
+    <div class="box">
+      <div class="grid two">
+        <label><input type="checkbox" class="lw" value="Pre-visit risk check & dynamic assessment"> Pre-visit risk check & dynamic assessment</label>
+        <label><input type="checkbox" class="lw" value="Check-in/out schedule with manager"> Check-in/out schedule with manager</label>
+        <label><input type="checkbox" class="lw" value="Buddy / escalation contact available"> Buddy / escalation contact available</label>
+        <label><input type="checkbox" class="lw" value="Personal alarm / phone charged"> Personal alarm / phone charged</label>
+        <label><input type="checkbox" class="lw" value="Clear exit route identified"> Clear exit route identified</label>
+        <label><input type="checkbox" class="lw" value="Do not enter if feels unsafe"> Do not enter if feels unsafe</label>
+      </div>
+      <textarea id="lwNotes" placeholder="Local Safe Working Procedure steps for this activity."></textarea>
+    </div>
+
+    <h2>Steps 4 & 5 – Record & review</h2>
+    <div class="box">
+      <label><input type="checkbox" class="ck" value="recorded"> Findings recorded in KTL template</label>
+      <label><input type="checkbox" class="ck" value="shared"> Shared with manager for sign-off</label>
+      <label><input type="checkbox" class="ck" value="review"> Review date set (≤ 6 months)</label>
+      <label><input type="checkbox" class="ck" value="inform"> Team informed / training arranged if needed</label>
+      <div class="progress"><div id="bar" class="bar"></div></div>
+      <div id="pct" class="hint">0% complete</div>
+    </div>
+
+    <!-- Option C: auto-preview when opening this details -->
+    <details id="previewWrap">
+      <summary>Preview Summary</summary>
+      <div id="summaryPreview" class="summary-preview"></div>
+    </details>
+
+    <div class="btnrow">
+      <button id="copy" type="button">Copy Summary</button>
+      <button id="reset" type="button">Reset Form</button>
+      <button id="send" class="primary" type="button"> Send Completion Email</button>
+    </div>
+
+    <p class="footer">
+      <strong>Key Transitions Ltd</strong> • This file runs locally in your browser; no data is uploaded. • 
+      Portfolio demo version
+    </p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'ktl_ra_v1';
+  const trainerEmail = ''; // Portfolio copy: recipient removed
+
+  // Theme toggle with persistence
+  const themeBtn = document.getElementById('toggleTheme');
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  themeBtn.textContent = savedTheme==='dark' ? '☀️' : '🌙';
+  themeBtn.addEventListener('click',()=>{
+    const now = document.documentElement.getAttribute('data-theme');
+    const next = now==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    themeBtn.textContent = next==='dark' ? '☀️' : '🌙';
+  });
+
+  // Prefill review date = +6 months
+  const review = document.getElementById('review');
+  const plus6 = new Date(); plus6.setMonth(plus6.getMonth()+6); review.valueAsDate = plus6;
+
+  // Hazards list
+  const hazards = [
+    'Verbal abuse / threats',
+    'Physical assault / violence',
+    'Use of weapons / objects',
+    'Sexually inappropriate behaviour',
+    'Substance misuse (drugs/alcohol)',
+    'Missing episodes / absconding',
+    'Mental health crisis / self-harm risk',
+    'Environmental risks (property/travel/night work)',
+    'Lone working without immediate support',
+    'Other (specify in notes)'
+  ];
+
+  const hazBody = document.getElementById('hazBody');
+
+  function bandFor(score){
+    if(score >= 17) return {label:'Very High', cls:'veryhigh'};
+    if(score >= 11) return {label:'High', cls:'high'};
+    if(score >= 6)  return {label:'Medium', cls:'medium'};
+    return {label:'Low', cls:'low'};
+  }
+
+  function rowTemplate(name, idx){
+    return `
+      <tr data-index="${idx}" class="disabled">
+        <td style="text-align:center"><input type="checkbox" class="hzTick" aria-label="Enable ${name}"></td>
+        <td><strong>${name}</strong></td>
+        <td>
+          <select class="like" disabled aria-label="Likelihood for ${name}">
+            <option value="1">1 – Rare</option>
+            <option value="2">2 – Unlikely</option>
+            <option value="3" selected>3 – Possible</option>
+            <option value="4">4 – Likely</option>
+            <option value="5">5 – Almost certain</option>
+          </select>
+        </td>
+        <td>
+          <select class="sev" disabled aria-label="Severity for ${name}">
+            <option value="1">1 – Minor</option>
+            <option value="2">2 – Low</option>
+            <option value="3" selected>3 – Moderate</option>
+            <option value="4">4 – High</option>
+            <option value="5">5 – Severe/Critical</option>
+          </select>
+        </td>
+        <td class="scoreCell" style="text-align:center;font-weight:700">—</td>
+        <td class="bandCell"><span class="band">—</span></td>
+      </tr>
+    `;
+  }
+
+  hazards.forEach((h,i)=>{ hazBody.insertAdjacentHTML('beforeend', rowTemplate(h,i)); });
+
+  // Behaviour + compute
+  function updateRow(tr){
+    const tick = tr.querySelector('.hzTick');
+    const like = tr.querySelector('.like');
+    const sev  = tr.querySelector('.sev');
+    const scoreCell = tr.querySelector('.scoreCell');
+    const bandCell  = tr.querySelector('.bandCell');
+
+    const enabled = tick.checked;
+    like.disabled = !enabled; sev.disabled = !enabled;
+    tr.classList.toggle('disabled', !enabled);
+
+    const s = Number(like.value) * Number(sev.value);
+    scoreCell.textContent = enabled ? s : '—';
+    const band = bandFor(s);
+    bandCell.innerHTML = enabled ? `<span class="band ${band.cls}">${band.label}</span>` : `<span class="band">—</span>`;
+
+    updateStats();
+    checkHighRisk();
+    save();
+  }
+
+  Array.from(hazBody.querySelectorAll('tr')).forEach(tr=>{
+    const tick = tr.querySelector('.hzTick');
+    const like = tr.querySelector('.like');
+    const sev  = tr.querySelector('.sev');
+    tick.addEventListener('change', ()=>updateRow(tr));
+    like.addEventListener('change', ()=>updateRow(tr));
+    sev.addEventListener('change', ()=>updateRow(tr));
+    updateRow(tr);
+  });
+
+  // Stats dashboard
+  function getSelectedHazards(){
+    return Array.from(hazBody.querySelectorAll('tr'))
+      .filter(tr=>tr.querySelector('.hzTick').checked)
+      .map(tr=>{
+        const name = tr.children[1].textContent.trim();
+        const like = Number(tr.querySelector('.like').value);
+        const sev  = Number(tr.querySelector('.sev').value);
+        const score = like*sev; const band = bandFor(score).label;
+        return {name, like, sev, score, band};
+      });
+  }
+
+  function updateStats(){
+    const selected = getSelectedHazards();
+    const statsContainer = document.getElementById('statsContainer');
+    const statHazards = document.getElementById('statHazards');
+    const statHighest = document.getElementById('statHighest');
+    if(selected.length > 0){
+      statsContainer.style.display = 'grid';
+      statHazards.textContent = selected.length;
+      const highest = Math.max(...selected.map(h=>h.score));
+      const band = bandFor(highest);
+      statHighest.textContent = `${highest} (${band.label})`;
+    } else {
+      statsContainer.style.display = 'none';
+    }
+  }
+
+  // High risk alert
+  function checkHighRisk(){
+    const selected = getSelectedHazards();
+    const alert = document.getElementById('highRiskAlert');
+    const hasHighRisk = selected.some(h => h.score >= 11);
+    alert.style.display = hasHighRisk ? 'flex' : 'none';
+  }
+
+  // Checklist progress
+  const cks = document.querySelectorAll('.ck');
+  const bar = document.getElementById('bar');
+  const pct = document.getElementById('pct');
+  const statProgress = document.getElementById('statProgress');
+  function updateProgress(){
+    const total = cks.length;
+    const done = Array.from(cks).filter(c=>c.checked).length;
+    const p = Math.round(done/Math.max(total,1)*100);
+    bar.style.width = p + '%';
+    pct.textContent = p + '% complete';
+    statProgress.textContent = p + '%';
+    save();
+    return p;
+  }
+  cks.forEach(c=>c.addEventListener('change', updateProgress));
+  updateProgress();
+
+  // Helpers
+  function listChecked(selector){
+    return Array.from(document.querySelectorAll(selector+':checked')).map(x=>x.value);
+  }
+
+  function buildSummary(){
+    const who = document.getElementById('who').value.trim() || '[name]';
+    const role = document.getElementById('role').value.trim();
+    const site = document.getElementById('site').value.trim();
+    const scen = document.getElementById('scenario').value.trim() || '(no scenario entered)';
+    const hazNotes = document.getElementById('hazardNotes').value.trim();
+    const harmed = listChecked('.wh').join('; ') || '(none ticked)';
+    const harmNotes = document.getElementById('harmNotes').value.trim();
+    const existing = document.getElementById('existing').value.trim();
+    const further  = document.getElementById('further').value.trim();
+    const lw = listChecked('.lw').join('; ') || '(none)';
+    const lwNotes = document.getElementById('lwNotes').value.trim();
+    const reviewVal = document.getElementById('review').value || '(not set)';
+    const pctDone = updateProgress();
+
+    const rows = getSelectedHazards();
+    const top = rows.length ? rows.reduce((a,b)=> a.score>=b.score ? a : b) : null;
+
+    const hazardBlock = rows.length
+      ? rows.map(r=>`  • ${r.name}: L${r.like} × S${r.sev} = ${r.score} (${r.band})`).join('\n')
+      : '  (no hazards scored)';
+
+    const text =
+`═══════════════════════════════════════════════════
+  KTL RISK ASSESSMENT – SUMMARY
+═══════════════════════════════════════════════════
+
+STAFF DETAILS:
+  Name: ${who}${role? ' ('+role+')':''}
+  Location/Service: ${site || '(not specified)'}
+  Assessment Date: ${new Date().toLocaleDateString()}
+  Review Date: ${reviewVal}
+
+SCENARIO/ACTIVITY:
+  ${scen}
+
+═══════════════════════════════════════════════════
+HAZARDS & RISK SCORES:
+═══════════════════════════════════════════════════
+${hazardBlock}
+
+Additional Notes: ${hazNotes || '(none)'}
+Top Risk Identified: ${top ? `${top.name} – Score ${top.score} (${top.band})` : '(n/a)'}
+
+═══════════════════════════════════════════════════
+WHO MIGHT BE HARMED & HOW:
+═══════════════════════════════════════════════════
+Groups at Risk: ${harmed}
+Details: ${harmNotes || '(none)'}
+
+═══════════════════════════════════════════════════
+CONTROL MEASURES:
+═══════════════════════════════════════════════════
+Existing Controls:
+  ${existing || '(none listed)'}
+
+Further Controls Required:
+  ${further || '(none listed)'}
+
+═══════════════════════════════════════════════════
+LONE WORKING ARRANGEMENTS:
+═══════════════════════════════════════════════════
+Measures in Place: ${lw}
+Additional Notes: ${lwNotes || '(none)'}
+
+═══════════════════════════════════════════════════
+RECORD & REVIEW STATUS:
+═══════════════════════════════════════════════════
+Checklist Completion: ${pctDone}%
+Next Review Date: ${reviewVal}
+
+═══════════════════════════════════════════════════
+Generated: ${new Date().toLocaleString()}
+═══════════════════════════════════════════════════`;
+    return {text, topScore: top ? top.score : 0, topBand: top ? top.band : 'n/a'};
+  }
+
+  // ===== Option C: Auto-preview on open + hardening =====
+
+  // Auto-preview when user opens the Preview section
+  const previewWrap = document.getElementById('previewWrap');
+  if (previewWrap) {
+    previewWrap.addEventListener('toggle', () => {
+      if (!previewWrap.open) return; // Only when opening
+      if (!validate()) return;       // Show validation if needed
+      const { text } = buildSummary();
+      const box = document.getElementById('summaryPreview');
+      box.textContent = text;
+      box.classList.add('show');
+    });
+  }
+
+  // Copy / Reset / Send — safe bindings
+  const copyBtn  = document.getElementById('copy');
+  const resetBtn = document.getElementById('reset');
+  const sendBtn  = document.getElementById('send');
+
+  copyBtn && copyBtn.addEventListener('click', async ()=>{
+    const { text } = buildSummary();
+    try{
+      await navigator.clipboard.writeText(text);
+      alert('Summary copied to clipboard.');
+    }catch(e){
+      alert('Copy failed — please copy manually.');
+    }
+  });
+
+  resetBtn && resetBtn.addEventListener('click',()=>{
+    if(!confirm('Clear all fields and start again?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    // Full reset (preserves your existing behaviour)
+    document.getElementById('who').value = '';
+    document.getElementById('role').value = '';
+    document.getElementById('site').value = '';
+    document.getElementById('scenario').value = '';
+    document.getElementById('hazardNotes').value = '';
+    document.getElementById('harmNotes').value = '';
+    document.getElementById('existing').value = '';
+    document.getElementById('further').value = '';
+    document.getElementById('lwNotes').value = '';
+    document.querySelectorAll('.wh,.lw,.ck').forEach(i=> i.checked=false);
+    Array.from(hazBody.querySelectorAll('tr')).forEach(tr=>{
+      tr.querySelector('.hzTick').checked = false;
+      tr.querySelector('.like').value = '3';
+      tr.querySelector('.sev').value  = '3';
+      updateRow(tr);
+    });
+    updateProgress();
+    document.getElementById('summaryPreview').classList.remove('show');
+    document.getElementById('valAlert').style.display='none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  sendBtn && sendBtn.addEventListener('click',()=>{
+    if(!validate()) return;
+    const {text, topScore, topBand} = buildSummary();
+    const subject = encodeURIComponent(`KTL Risk Assessment – ${topBand} top risk (score ${topScore})`);
+    const body = encodeURIComponent(text);
+    window.location.href = `mailto:${trainerEmail}?subject=${subject}&body=${body}`;
+  });
+
+  // Validation (unchanged)
+  function validate(){
+    const errors = [];
+    const who = document.getElementById('who');
+    const scenario = document.getElementById('scenario');
+
+    [who, scenario].forEach(el=> el.classList.remove('error'));
+
+    if(!who.value.trim()) { errors.push('Staff name is required.'); who.classList.add('error'); }
+    if(!scenario.value.trim()) { errors.push('Scenario/activity is required.'); scenario.classList.add('error'); }
+
+    const selected = getSelectedHazards();
+    if(selected.length===0){ errors.push('Select and score at least one hazard.'); }
+
+    const valAlert = document.getElementById('valAlert');
+    const valMsg = document.getElementById('valMsg');
+    if(errors.length){
+      valMsg.textContent = errors.join(' ');
+      valAlert.style.display = 'flex';
+      return false;
+    } else {
+      valAlert.style.display = 'none';
+      return true;
+    }
+  }
+
+  // Autosave
+  const fields = ['who','role','site','scenario','hazardNotes','harmNotes','existing','further','lwNotes','review'];
+  fields.forEach(id=> document.getElementById(id).addEventListener('input', save));
+
+  function save(){
+    try{
+      const data = {
+        fields: Object.fromEntries(fields.map(id=>[id, document.getElementById(id).value])),
+        checks: {
+          wh: listChecked('.wh'),
+          lw: listChecked('.lw'),
+          ck: listChecked('.ck')
+        },
+        hazards: Array.from(hazBody.querySelectorAll('tr')).map(tr=>({
+          tick: tr.querySelector('.hzTick').checked,
+          like: tr.querySelector('.like').value,
+          sev:  tr.querySelector('.sev').value
+        })),
+        theme: document.documentElement.getAttribute('data-theme')
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }catch(e){}
+  }
+
+  function load(){
+    try{
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');
+      if(!data) { updateStats(); return; }
+      Object.entries(data.fields||{}).forEach(([id,val])=>{ const el = document.getElementById(id); if(el) el.value = val; });
+      document.querySelectorAll('.wh').forEach(cb=> cb.checked = (data.checks?.wh||[]).includes(cb.value));
+      document.querySelectorAll('.lw').forEach(cb=> cb.checked = (data.checks?.lw||[]).includes(cb.value));
+      document.querySelectorAll('.ck').forEach(cb=> cb.checked = (data.checks?.ck||[]).includes(cb.value));
+      (data.hazards||[]).forEach((h,idx)=>{
+        const tr = hazBody.querySelector(`tr[data-index="${idx}"]`);
+        if(!tr) return;
+        tr.querySelector('.hzTick').checked = !!h.tick;
+        tr.querySelector('.like').value = h.like || '3';
+        tr.querySelector('.sev').value  = h.sev  || '3';
+        updateRow(tr);
+      });
+      updateProgress();
+      if(data.theme){ document.documentElement.setAttribute('data-theme', data.theme); themeBtn.textContent = data.theme==='dark'?'☀️':'🌙'; }
+    }catch(e){}
+  }
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1816 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KTL Home Skills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b1222;--muted:#64748b;--bg:#f8fafc;--card:#fff;--primary:#2563eb;--success:#10b981;--warn:#f59e0b;--error:#ef4444}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+.header{position:sticky;top:0;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 16px;z-index:10}
+.logo{font-weight:800;color:var(--primary)}
+.stars{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;border-radius:999px;padding:6px 10px;font-weight:800}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.select,.toggle,.btn{border:2px solid #e5e7eb;background:#fff;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.journey{background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 16px}
+.journey-title{font-weight:800;color:var(--muted)}
+.journey-track{display:flex;gap:8px;overflow:auto;padding:6px 0}
+.node{min-width:84px;height:84px;border:2px solid #e5e7eb;border-radius:14px;background:#f8fafc;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.node{cursor:pointer}
+.node:hover{border-color:var(--primary)}
+.node:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.node.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.25)}
+.node.done{background:linear-gradient(135deg,#10b981,#059669);border-color:#059669}
+.node small{font-size:10px;font-weight:800}
+.node.done small{color:#fff}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:18px;margin-top:16px}
+.header-row{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.badge{padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1e40af;font-weight:800}
+.progress{height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin:8px 0}
+.fill{height:100%;width:0;background:linear-gradient(90deg,#2563eb,#06b6d4);transition:width .4s}
+.avatar{display:flex;gap:10px;align-items:center}
+.meter{flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden}
+.meter>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ef4444,#10b981)}
+.play{min-height:260px;background:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;padding:14px;margin:12px 0}
+.zone-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.zone{min-height:180px;background:#fff;border:3px dashed #cbd5e1;border-radius:12px;padding:12px}
+.zone.drag{background:#dbeafe;border-color:var(--primary)}
+.zone-head{font-weight:800;text-align:center;border-bottom:2px solid #e5e7eb;padding-bottom:6px}
+.item{background:#fff;border:2px solid #e5e7eb;border-radius:12px;padding:12px;min-width:96px;text-align:center;cursor:grab;user-select:none;display:inline-block;margin:6px}
+.icon{font-size:40px}
+/* for SVG clothing icons (white shirts, dark trousers, etc.) */
+.icon svg{
+  width:40px;
+  height:40px;
+  display:block;
+  margin:0 auto;
+}
+.label{font-size:12px;font-weight:700;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.step{background:#fff;border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;font-weight:800;cursor:pointer}
+.step.done{background:linear-gradient(135deg,#10b981,#059669);border-color:#059669;color:#fff}
+.step.wrong{border-color:var(--error)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn{border:none;border-radius:12px;padding:12px 16px;font-weight:800}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.success{background:var(--success);color:#fff}
+.btn.secondary{background:#f1f5f9;border:2px solid #e5e7eb}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#111827;color:#fff;border-radius:12px;padding:10px 14px;font-weight:800;z-index:1000}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:1200}
+.modal.show{display:flex}
+.modal-body{background:#fff;border-radius:16px;padding:18px;max-width:520px;width:100%}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:1100}
+.rtl{direction:rtl}
+.rtl .journey-track{direction:ltr}
+@media (max-width:640px){
+  .zone-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="logo">🏠 KTL Home Skills</div>
+  <div class="controls">
+    <span class="stars" id="stars">⭐ 0</span>
+    <select id="lang" class="select" aria-label="Language">
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="ar">العربية</option>
+      <option value="fa">فارسی</option>
+      <option value="ps">پښتو</option>
+      <option value="ckb">کوردیی سۆرانی</option>
+      <option value="ku">Kurdî (Kurmanji)</option>
+      <option value="so">Soomaali</option>
+      <option value="am">አማርኛ</option>
+      <option value="om">Afaan Oromoo</option>
+      <option value="tig">ትግሬ</option>
+      <option value="nus">Nuer</option>
+      <option value="ff">Fulfulde</option>
+    </select>
+    <select id="difficulty" class="select" aria-label="Difficulty">
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+    <label class="toggle"><input id="speedMode" type="checkbox" /> ⏱️ <span id="lblSpeed">Speed</span></label>
+    <label class="toggle"><input id="mute" type="checkbox" /> 🔇 <span id="lblMute">Mute</span></label>
+    <button class="btn secondary" id="helpBtn">❓ <span id="lblHelp">Help</span></button>
+    <button class="btn secondary" id="achBtn">🏅 <span id="lblAch">Achievements</span></button>
+  </div>
+</header>
+
+<section class="journey">
+  <div class="journey-title" id="journeyTitle">Your Progress</div>
+  <div class="journey-track" id="track"></div>
+</section>
+
+<main class="container">
+  <article class="card">
+    <div class="header-row">
+      <h1 id="taskTitle">Task 1: Sorting Rubbish</h1>
+      <div>
+        <span class="badge" id="badge">Easy</span>
+        <span class="badge" id="timer" style="display:none">60s</span>
+      </div>
+    </div>
+
+    <div class="avatar">🧍
+      <div class="meter"><span id="cleanBar"></span></div>
+      <strong id="cleanPct" style="min-width:42px;text-align:right">0%</strong>
+    </div>
+
+    <div id="scenario" style="background:#fff4db;border-left:4px solid var(--warn);padding:10px;border-radius:8px;margin:10px 0"></div>
+    <div id="instructions" style="background:#f1f5f9;border-left:4px solid var(--primary);padding:10px;border-radius:8px;margin:10px 0"></div>
+
+    <div class="progress"><div class="fill" id="fill"></div></div>
+
+    <div id="game" class="play"></div>
+
+    <div class="actions">
+      <button class="btn secondary" id="speakBtn">🔊 <span id="lblVoice">Voice</span></button>
+      <button class="btn primary" id="check">✓ <span id="lblCheck">Check</span></button>
+      <button class="btn success" id="next" style="display:none"><span id="lblNext">Next</span> ▶</button>
+      <button class="btn secondary" id="reset"><span id="lblReset">Reset</span></button>
+    </div>
+
+    <div style="background:#e8efff;border-left:4px solid var(--primary);padding:10px;border-radius:8px;margin-top:10px">
+      <strong>💡 <span id="lblTip">Tip</span></strong>
+      <div id="tip">Recycling helps the environment and saves money.</div>
+    </div>
+  </article>
+</main>
+
+<!-- Help -->
+<div class="modal" id="help">
+  <div class="modal-body">
+    <h3 id="helpTitle">Need help?</h3>
+    <div id="helpContent"></div>
+    <div style="text-align:right;margin-top:10px">
+      <button class="btn primary" id="closeHelp"><span id="lblHelpOk">OK</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Achievements -->
+<div class="modal" id="achievements">
+  <div class="modal-body">
+    <h3 id="achTitle">Achievements</h3>
+    <ul id="achList" style="padding-left:18px"></ul>
+    <div style="text-align:right;margin-top:10px">
+      <button class="btn primary" id="closeAch"><span id="lblAchOk">OK</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Result / End-of-game modal (for “Better luck next time”, scores, restart, etc.) -->
+<div class="modal" id="resultModal">
+  <div class="modal-body">
+    <h3 id="resultTitle">Result</h3>
+    <p id="resultMessage" style="margin-top:6px">Better luck next time!</p>
+    <div style="text-align:right;margin-top:14px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn secondary" id="btnEndGame">⏹ <span id="lblEndGame">End game</span></button>
+      <button class="btn primary" id="btnRestart">🔁 <span id="lblRestart">Start again</span></button>
+      <button class="btn primary" id="btnNextTask" style="display:none">▶ <span id="lblNextTask">Next</span></button>
+    </div>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+// Utils
+const $=s=>document.querySelector(s);
+const noDash=s=>String(s||'').replace(/[–—]/g,' ');
+
+// Simple WebAudio beeps (no external files)
+const AudioKit=(()=>{
+  let ctx;
+  function beep(freq=660,ms=120,type='sine',gain=0.05){
+    if(window.__MUTED__) return;
+    try{
+      ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type=type; o.frequency.value=freq; g.gain.value=gain;
+      o.connect(g); g.connect(ctx.destination);
+      o.start();
+      setTimeout(()=>{ o.stop(); o.disconnect(); g.disconnect(); }, ms);
+    }catch(e){/* ignore */}
+  }
+  return {beep};
+})();
+
+// Full multilingual content
+const L = {
+  en: {
+    rtl:false,
+    ui:{
+      progress:'Your Progress',
+      speed:'Speed',
+      mute:'Mute',
+      help:'Help',
+      achievements:'Achievements',
+      voice:'Voice',
+      check:'Check',
+      next:'Next',
+      reset:'Reset',
+      tip:'Tip',
+      ok:'OK'
+    },
+    diff:{easy:'Easy',medium:'Medium',hard:'Hard'},
+    tasks:[
+      {key:'rubbish',title:'Sorting Rubbish',scenario:'You are tidying up after dinner. Sort items correctly.',instructions:'Drag each item to the correct bin.',tip:'Cans, bottles, cardboard usually recycle. Food and tissues go to waste.'},
+      {key:'laundry',title:'Laundry Sorting',scenario:'Washing day. Keep colours separate.',instructions:'Lights in one basket, darks in another.',tip:'Dark dyes can bleed onto lights.'},
+      {key:'hands',title:'Hand Washing',scenario:'Before cooking, wash your hands properly.',instructions:'Tap the steps in the correct order.',tip:'Scrub for at least 20 seconds.'},
+      {key:'kitchen',title:'Kitchen Clean up',scenario:'After cooking, clean dishes step by step.',instructions:'Follow the washing sequence.',tip:'Rinse twice: before soap and after.'}
+    ],
+    bins:{recycle:'Recycling',trash:'General Waste'},
+    laundry:{lights:'Light Colours',darks:'Dark Colours'},
+    items:{
+      rubbish:{
+        can:'Can',
+        bottle:'Bottle',
+        paper:'Paper',
+        food:'Food',
+        tissue:'Tissue',
+        cardboard:'Cardboard',
+        carton:'Carton'
+      },
+      laundry:{
+        whiteShirt:'White Shirt',
+        whiteSocks:'White Socks',
+        lightTop:'Light Top',
+        blackJacket:'Black Jacket',
+        jeans:'Jeans',
+        scarf:'Scarf',
+        dress:'Dress'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'Wet',
+        soap:'Soap',
+        scrub:'Scrub 20s',
+        rinse:'Rinse',
+        dry:'Dry'
+      },
+      kitchen:{
+        scrape:'Scrape',
+        rinse1:'Rinse',
+        soap:'Soap',
+        scrub:'Scrub',
+        rinse2:'Rinse',
+        dry:'Dry'
+      }
+    },
+    feedback:{ok:'Great job!',nope:'Not quite, try again.'},
+    result:{
+      titleWin:'Well done!',
+      titleLose:'Better luck next time',
+      msgWin:'You finished this task. You can move on or start again to practise.',
+      msgLose:'You can try this task again to improve your score.',
+      playAgain:'Start again',
+      endGame:'End game'
+    },
+    help:{
+      recycling:'<p><strong>Recycling:</strong> cans, bottles, paper and cardboard go in recycling. Food and tissues go in general waste.</p>',
+      laundry:'<p><strong>Laundry:</strong> keep light clothes together and dark clothes together so colours do not run.</p>'
+    }
+  },
+
+  fr: {
+    rtl:false,
+    ui:{
+      progress:'Votre progression',
+      speed:'Vitesse',
+      mute:'Muet',
+      help:'Aide',
+      achievements:'Succès',
+      voice:'Voix',
+      check:'Vérifier',
+      next:'Suivant',
+      reset:'Réinitialiser',
+      tip:'Astuce',
+      ok:'OK'
+    },
+    diff:{easy:'Facile',medium:'Moyen',hard:'Difficile'},
+    tasks:[
+      {key:'rubbish',title:'Trier les déchets',scenario:'Tu ranges après le dîner. Trie correctement.',instructions:'Fais glisser chaque objet vers la bonne poubelle.',tip:"L’aluminium, les bouteilles et le carton se recyclent. Les restes et mouchoirs vont aux ordures."},
+      {key:'laundry',title:'Trier le linge',scenario:'Jour de lessive. Sépare les couleurs.',instructions:'Clairs ensemble, foncés ensemble.',tip:'Les couleurs foncées peuvent déteindre.'},
+      {key:'hands',title:'Lavage des mains',scenario:'Avant de cuisiner, lave bien tes mains.',instructions:'Tape les étapes dans le bon ordre.',tip:'Frotte au moins 20 secondes.'},
+      {key:'kitchen',title:'Nettoyage cuisine',scenario:'Après avoir cuisiné, nettoie la vaisselle.',instructions:'Suis la séquence de lavage.',tip:'Rince avant le savon et après.'}
+    ],
+    bins:{recycle:'Recyclage',trash:'Ordures'},
+    laundry:{lights:'Clair',darks:'Foncé'},
+    items:{
+      rubbish:{
+        can:'Canette',
+        bottle:'Bouteille',
+        paper:'Papier',
+        food:'Restes de nourriture',
+        tissue:'Mouchoir',
+        cardboard:'Carton',
+        carton:'Brique de jus'
+      },
+      laundry:{
+        whiteShirt:'Chemise blanche',
+        whiteSocks:'Chaussettes blanches',
+        lightTop:'Haut clair',
+        blackJacket:'Veste noire',
+        jeans:'Jean',
+        scarf:'Écharpe',
+        dress:'Robe'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'Mouiller',
+        soap:'Savon',
+        scrub:'Frotter 20 s',
+        rinse:'Rincer',
+        dry:'Sécher'
+      },
+      kitchen:{
+        scrape:'Gratter',
+        rinse1:'Rincer',
+        soap:'Savon',
+        scrub:'Frotter',
+        rinse2:'Rincer',
+        dry:'Sécher'
+      }
+    },
+    feedback:{ok:'Bravo !',nope:'Pas tout à fait.'},
+    result:{
+      titleWin:'Bien joué !',
+      titleLose:'Ce n’est pas grave',
+      msgWin:'Tu as terminé cette tâche. Tu peux continuer ou recommencer pour t’entrainer.',
+      msgLose:'Tu peux réessayer cette tâche pour améliorer ton score.',
+      playAgain:'Recommencer',
+      endGame:'Fin du jeu'
+    },
+    help:{
+      recycling:'<p><strong>Recyclage :</strong> canettes, bouteilles, papier et carton vont dans le recyclage. Les restes de nourriture et mouchoirs vont aux ordures.</p>',
+      laundry:'<p><strong>Lessive :</strong> mets les vêtements clairs ensemble et les foncés ensemble pour éviter que les couleurs ne déteignent.</p>'
+    }
+  },
+
+  ar: {
+    rtl:true,
+    ui:{
+      progress:'تقدمك',
+      speed:'السرعة',
+      mute:'كتم',
+      help:'مساعدة',
+      achievements:'الإنجازات',
+      voice:'صوت',
+      check:'تحقق',
+      next:'التالي',
+      reset:'إعادة ضبط',
+      tip:'نصيحة',
+      ok:'حسناً'
+    },
+    diff:{easy:'سهل',medium:'متوسط',hard:'صعب'},
+    tasks:[
+      {key:'rubbish',title:'فرز القمامة',scenario:'أنت ترتب بعد العشاء. رتب العناصر بشكل صحيح.',instructions:'اسحب كل عنصر إلى السلة الصحيحة.',tip:'العلب والزجاج والكرتون غالباً يعاد تدويرها. بقايا الطعام والمناديل إلى النفايات.'},
+      {key:'laundry',title:'فرز الغسيل',scenario:'يوم الغسيل. افصل الألوان.',instructions:'الملابس الفاتحة معاً، الداكنة معاً.',tip:'قد يبهت الداكن على الفاتح.'},
+      {key:'hands',title:'غسل اليدين',scenario:'قبل الطهي اغسل يديك جيداً.',instructions:'اضغط الخطوات بالترتيب الصحيح.',tip:'افرك لمدة 20 ثانية على الأقل.'},
+      {key:'kitchen',title:'تنظيف المطبخ',scenario:'بعد الطبخ نظف الأطباق خطوة بخطوة.',instructions:'اتبع تسلسل الغسيل.',tip:'اشطف قبل الصابون وبعده.'}
+    ],
+    bins:{recycle:'إعادة التدوير',trash:'نفايات عامة'},
+    laundry:{lights:'ألوان فاتحة',darks:'ألوان داكنة'},
+    items:{
+      rubbish:{
+        can:'علبة',
+        bottle:'زجاجة',
+        paper:'ورق',
+        food:'بقايا طعام',
+        tissue:'منديل',
+        cardboard:'كرتون',
+        carton:'علبة عصير'
+      },
+      laundry:{
+        whiteShirt:'قميص أبيض',
+        whiteSocks:'جوارب بيضاء',
+        lightTop:'بلوزة فاتحة',
+        blackJacket:'سترة سوداء',
+        jeans:'بنطال جينز',
+        scarf:'وشاح',
+        dress:'فستان'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'تبليل',
+        soap:'صابون',
+        scrub:'فرك 20 ثانية',
+        rinse:'شطف',
+        dry:'تجفيف'
+      },
+      kitchen:{
+        scrape:'إزالة البقايا',
+        rinse1:'شطف',
+        soap:'صابون',
+        scrub:'دعك',
+        rinse2:'شطف',
+        dry:'تجفيف'
+      }
+    },
+    feedback:{ok:'أحسنت!',nope:'حاول مرة أخرى.'},
+    result:{
+      titleWin:'أحسنت!',
+      titleLose:'حظاً أوفر في المرة القادمة',
+      msgWin:'أنجزت هذه المهمة. يمكنك المتابعة أو المحاولة مرة أخرى للتدريب.',
+      msgLose:'يمكنك إعادة المحاولة لتحسين نتيجتك.',
+      playAgain:'ابدأ من جديد',
+      endGame:'إنهاء اللعبة'
+    },
+    help:{
+      recycling:'<p><strong>إعادة التدوير:</strong> العلب والزجاج والورق والكرتون توضع في سلة إعادة التدوير. بقايا الطعام والمناديل في سلة النفايات.</p>',
+      laundry:'<p><strong>الغسيل:</strong> ضع الملابس الفاتحة معاً والداكنة معاً حتى لا تختلط الألوان.</p>'
+    }
+  },
+
+  fa: {
+    rtl:true,
+    ui:{
+      progress:'پیشرفت شما',
+      speed:'سرعت',
+      mute:'بی‌صدا',
+      help:'راهنما',
+      achievements:'دستاوردها',
+      voice:'صدا',
+      check:'بررسی',
+      next:'بعدی',
+      reset:'بازنشانی',
+      tip:'نکته',
+      ok:'باشه'
+    },
+    diff:{easy:'آسان',medium:'متوسط',hard:'سخت'},
+    tasks:[
+      {key:'rubbish',title:'تفکیک زباله',scenario:'بعد از شام مرتب می‌کنید. وسایل را درست جدا کنید.',instructions:'هر مورد را به سطل درست بکشید.',tip:'قوطی، بطری و مقوا بازیافت می‌شوند. غذا و دستمال در زباله.'},
+      {key:'laundry',title:'تفکیک لباس',scenario:'روز شستشو. رنگ‌ها را جدا نگه دارید.',instructions:'روشن‌ها یک‌جا، تیره‌ها یک‌جا.',tip:'رنگ تیره ممکن است منتقل شود.'},
+      {key:'hands',title:'شستن دست',scenario:'قبل از آشپزی دست‌ها را درست بشویید.',instructions:'مراحل را به ترتیب لمس کنید.',tip:'حداقل ۲۰ ثانیه بسابید.'},
+      {key:'kitchen',title:'تمیزکاری آشپزخانه',scenario:'بعد از آشپزی ظرف‌ها را مرحله‌ای تمیز کنید.',instructions:'ترتیب شستشو را دنبال کنید.',tip:'قبل و بعد از صابون آبکشی کنید.'}
+    ],
+    bins:{recycle:'بازیافت',trash:'زباله'},
+    laundry:{lights:'روشن',darks:'تیره'},
+    items:{
+      rubbish:{
+        can:'قوطی',
+        bottle:'بطری',
+        paper:'کاغذ',
+        food:'باقی‌مانده غذا',
+        tissue:'دستمال کاغذی',
+        cardboard:'مقوا',
+        carton:'پاکت نوشیدنی'
+      },
+      laundry:{
+        whiteShirt:'پیراهن سفید',
+        whiteSocks:'جوراب سفید',
+        lightTop:'بلوز روشن',
+        blackJacket:'کاپشن مشکی',
+        jeans:'شلوار جین',
+        scarf:'شال گردن',
+        dress:'لباس مجلسی'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'خیس کردن',
+        soap:'صابون',
+        scrub:'سایش ۲۰ ثانیه',
+        rinse:'آبکشی',
+        dry:'خشک کردن'
+      },
+      kitchen:{
+        scrape:'تمیز کردن باقیمانده',
+        rinse1:'آبکشی',
+        soap:'صابون',
+        scrub:'سایش',
+        rinse2:'آبکشی دوباره',
+        dry:'خشک کردن'
+      }
+    },
+    feedback:{ok:'عالی بود!',nope:'دوباره تلاش کنید.'},
+    result:{
+      titleWin:'آفرین!',
+      titleLose:'دفعه بعد بهتر می‌شود',
+      msgWin:'این مرحله را کامل کردید. می‌توانید ادامه دهید یا دوباره تمرین کنید.',
+      msgLose:'می‌توانید دوباره تلاش کنید تا نتیجه بهتری بگیرید.',
+      playAgain:'شروع دوباره',
+      endGame:'پایان بازی'
+    },
+    help:{
+      recycling:'<p><strong>بازیافت:</strong> قوطی، بطری، کاغذ و مقوا در سطل بازیافت می‌روند. باقی‌مانده غذا و دستمال در سطل زباله.</p>',
+      laundry:'<p><strong>لباس‌شویی:</strong> لباس‌های روشن را از تیره جدا نگه دارید تا رنگ‌ها قاطی نشوند.</p>'
+    }
+  },
+
+  ps: {
+    rtl:true,
+    ui:{
+      progress:'پرمختګ',
+      speed:'چټکتیا',
+      mute:'غلی',
+      help:'مرسته',
+      achievements:'لاسته راوړنې',
+      voice:'غږ',
+      check:'کتنه',
+      next:'بل',
+      reset:'بیا تنظیم',
+      tip:'مشوره',
+      ok:'سم'
+    },
+    diff:{easy:'اسانه',medium:'منځنی',hard:'سخت'},
+    tasks:[
+      {key:'rubbish',title:'کثافات ترتیبول',scenario:'د ډوډۍ وروسته کور صفا کوئ. شیان سم وویشئ.',instructions:'هر توکی سم صندوق ته کش کړئ.',tip:'ټین، بوتل او کارتن بیا کارېدونکي دي. پاتې خواړه او دستمال کثافات دي.'},
+      {key:'laundry',title:'کالي ترتیبول',scenario:'د مینځلو ورځ. رڼا او تور جلا کړئ.',instructions:'رڼا جلا، تور جلا.',tip:'توره رنګ رڼا ته لېږدېدلی شي.'},
+      {key:'hands',title:'لاس مینځل',scenario:'د پخلي وړاندې لاسونه ومینځئ.',instructions:'پړاوونه په سمه توګه وهئ.',tip:'تر لږ تر لږه ۲۰ ثانیې ومښئ.'},
+      {key:'kitchen',title:'پخلنځي صفايي',scenario:'له پخلي وروسته لوښي په پړاوونو پاک کړئ.',instructions:'د مینځلو ترتیب تعقیب کړئ.',tip:'د صابون وړاندې او وروسته ومینځئ.'}
+    ],
+    bins:{recycle:'بیا کارول',trash:'کثافات'},
+    laundry:{lights:'روښانه',darks:'توره'},
+    items:{
+      rubbish:{
+        can:'تباشیر/ټین',
+        bottle:'بوتل',
+        paper:'کاغذ',
+        food:'د خوړو پاتې شوني',
+        tissue:'دستمال',
+        cardboard:'کارتن',
+        carton:'جوس کارتن'
+      },
+      laundry:{
+        whiteShirt:'سپین کمیس',
+        whiteSocks:'سپین جرابې',
+        lightTop:'روښانه کمیس',
+        blackJacket:'تور جاکټ',
+        jeans:'جین پطلون',
+        scarf:'مفلر',
+        dress:'کالي/لباس'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'لندول',
+        soap:'صابن',
+        scrub:'۲۰ ثانیې مښل',
+        rinse:'مینځل',
+        dry:'وچول'
+      },
+      kitchen:{
+        scrape:'باقي مواد لرې کول',
+        rinse1:'منځل',
+        soap:'صابن',
+        scrub:'رګول',
+        rinse2:'بیا منځل',
+        dry:'وچول'
+      }
+    },
+    feedback:{ok:'ښه کار!',nope:'بیا هڅه وکړئ.'},
+    result:{
+      titleWin:'آفرین!',
+      titleLose:'بل ځل به ښه وي',
+      msgWin:'ته دا دنده بشپړه کړه. کولای شې دوام ورکړې یا بیا یې پیل کړې.',
+      msgLose:'بیا هڅه وکړه تر څو ښه نمره ترلاسه کړې.',
+      playAgain:'بیا پیل',
+      endGame:'لوبه ختمول'
+    },
+    help:{
+      recycling:'<p><strong>بیا کارول:</strong> ټین، بوتل، کاغذ او کارتن بیا کارېدونکي دي. د خوړو پاتې شوني او دستمال کثافات دي.</p>',
+      laundry:'<p><strong>کالي مینځل:</strong> رڼا کالي له تیارو جلا وساته چې رنګونه ګډ نه شي.</p>'
+    }
+  },
+
+  ckb: {
+    rtl:true,
+    ui:{
+      progress:'پێشکەوتنت',
+      speed:'خێرایی',
+      mute:'بێدەنگ',
+      help:'یارمەتی',
+      achievements:'دەستاوردەکان',
+      voice:'دەنگ',
+      check:'پشکنین',
+      next:'دواتر',
+      reset:'ڕیست',
+      tip:'پەند',
+      ok:'باشه'
+    },
+    diff:{easy:'ئاسان',medium:'ناوەند',hard:'سخت'},
+    tasks:[
+      {key:'rubbish',title:'جیاکردنی خاشاک',scenario:'دوای نیوەڕۆ خواردنەوە پاک دەکەیت. شتان بە دروستی دابەش بکە.',instructions:'هەر شتێک بۆ سندوقی گونجاو بکوژێنە.',tip:'قوطی و بوتڵ و کارتوون دووبارە بەکاردهێنن.'},
+      {key:'laundry',title:'جیاکردنی جل',scenario:'ڕۆژێکی شوشتن. ڕووناک و تاریک جیا بکە.',instructions:'ڕووناکەکان یەکێ، تاریکەکان یەکێ.',tip:'تەواوی تاریک دەکرێت بۆ ڕووناک بگوازرێت.'},
+      {key:'hands',title:'شووشتنی دەست',scenario:'پێش خواستن دەستت باش بشۆ.',instructions:'هەنگاوەکان بە ڕیزدا کرتە بکە.',tip:'لە کەمەوە 20 چرکە بپاکێشە.'},
+      {key:'kitchen',title:'پاککردنی چێشتخانە',scenario:'دوای خواردن پێوستە قاپەکان بە هەنگاو پاک بکەی.',instructions:'ڕیزەکانی شووشتن پشتگوێ مەخە.',tip:'پێش سابون و دوای سابون بشۆ.'}
+    ],
+    bins:{recycle:'دووبارە بەکاربردن',trash:'پاشه‌کوێ'},
+    laundry:{lights:'ڕووناک',darks:'تاریک'},
+    items:{
+      rubbish:{
+        can:'قوطی',
+        bottle:'بوتڵ',
+        paper:'کاغەز',
+        food:'پاشماوەی خواردن',
+        tissue:'دستمال',
+        cardboard:'کارتوون',
+        carton:'کارتۆنی عەصیر'
+      },
+      laundry:{
+        whiteShirt:'جلە سپی',
+        whiteSocks:'کەلوش سپی',
+        lightTop:'جلە ڕووناک',
+        blackJacket:'کاپۆتی ڕەش',
+        jeans:'پەنṭۆڵی جین',
+        scarf:'شال',
+        dress:'کڵا'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'تڕکردن',
+        soap:'سابوون',
+        scrub:'شۆردن ٢٠ چرکە',
+        rinse:'شۆشتن',
+        dry:'وشککردن'
+      },
+      kitchen:{
+        scrape:'لابردنی پاشماوە',
+        rinse1:'شۆشتن',
+        soap:'سابوون',
+        scrub:'شۆردن',
+        rinse2:'دووبارە شۆشتن',
+        dry:'وشککردن'
+      }
+    },
+    feedback:{ok:'باشە!',nope:'هەوڵ بدە دوبارە.'},
+    result:{
+      titleWin:'ئەفرین!',
+      titleLose:'هەوڵی داهاتوو باشتر دەبێت',
+      msgWin:'ئەم ئەرەکەت تەواو کرد. دەتوانیت بەردەوام بیت یان دووبارە دەست پێبکەیت.',
+      msgLose:'دەتوانیت جارێکی تر هەوڵ بدەیت بۆ نمرەی باشتر.',
+      playAgain:'دووبارە دەستپێکردن',
+      endGame:'کۆتایی بە یاریەکە بدە'
+    },
+    help:{
+      recycling:'<p><strong>دووبارە بەکاربردن:</strong> قوطی و بوتڵ و کاغەز و کارتوون بۆ دووبارە بەکاربردنە. پاشماوە و دستمال بۆ پاشەکوێ.</p>',
+      laundry:'<p><strong>شوشتنی جل:</strong> جلە ڕووناک و تاریک جیا بکە بۆ ئەوەی ڕەنگەکان تێک نەچن.</p>'
+    }
+  },
+
+  ku: { // Kurmanji (Latin)
+    rtl:false,
+    ui:{
+      progress:'Pêşveçûn te',
+      speed:'Lez',
+      mute:'Bêdeng',
+      help:'Alîkarî',
+      achievements:'Xelat',
+      voice:'Deng',
+      check:'Pêbirin',
+      next:'Piştî',
+      reset:'Reset',
+      tip:'Şîret',
+      ok:'Baş e'
+    },
+    diff:{easy:'Hesûl',medium:'Navîn',hard:'Qelz'},
+    tasks:[
+      {key:'rubbish',title:'Veqetandina qeş',scenario:'Piştî xwarinê malê pak dikî. Tiştan rast veqetin.',instructions:'Her tiştê bi qutîya rastê bikeşîne.',tip:'Qutî, şîşe û karton dîsa têne bikaranîn.'},
+      {key:'laundry',title:'Veqetandina cil',scenario:'Rojê ji bo şûştinê. Ronî û tarî cuda bike.',instructions:'Ronî bi hev, tarî bi hev.',tip:'Tarî dikare li ser ronî bibe reş.'},
+      {key:'hands',title:'Şûştina destan',scenario:'Berî xwarinê destan baş bişo.',instructions:'Gavên bi rêza rastê bikirtînin.',tip:'Herî kêm 20 çirke bişo.'},
+      {key:'kitchen',title:'Pak kirina xwarinê',scenario:'Piştî xwarinê qefiq û qedeh bi gav bi gav paqij bike.',instructions:'Rêzê şûştinê bişopîne.',tip:'Berî sabûn û piştî sabûn bi avê binişe.'}
+    ],
+    bins:{recycle:'Vegerekarî',trash:'Çopê giştî'},
+    laundry:{lights:'Ronî',darks:'Tarî'},
+    items:{
+      rubbish:{
+        can:'Qutî',
+        bottle:'Şîşe',
+        paper:'Kaxez',
+        food:'Xwarinê mayî',
+        tissue:'Peçete',
+        cardboard:'Karton',
+        carton:'Kartonê şerbetê'
+      },
+      laundry:{
+        whiteShirt:'Kirasê spî',
+        whiteSocks:'Gore spî',
+        lightTop:'Kirasê ronî',
+        blackJacket:'Kurtkê reş',
+        jeans:'Pantalonê jîn',
+        scarf:'Darband',
+        dress:'Fistan'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'Şilkirin',
+        soap:'Sabun',
+        scrub:'Şil û şûştin 20 çirke',
+        rinse:'Paqij kirin',
+        dry:'Qilandin'
+      },
+      kitchen:{
+        scrape:'Paqijkirina xwarinê mayî',
+        rinse1:'Şûştin',
+        soap:'Sabun',
+        scrub:'Şil û şûştin',
+        rinse2:'Dîsa şûştin',
+        dry:'Qilandin'
+      }
+    },
+    feedback:{ok:'Aferîn!',nope:'Dîsa biceribîne.'},
+    result:{
+      titleWin:'Aferîn!',
+      titleLose:'Carekî din biceribîne',
+      msgWin:'Ev karî bi ser ket. Dikare berdewam bikî an jî dîsa dest pê bikî.',
+      msgLose:'Dikare dîsa biceribînî da ku encamê baştir bibî.',
+      playAgain:'Dîsa destpêkirin',
+      endGame:'Dawiya lîstikê'
+    },
+    help:{
+      recycling:'<p><strong>Vegerekarî:</strong> qutî, şîşe, kaxez û karton bi ♻️ veqetîne. Xwarinê mayî û peçete li qutîya çopê dike.</p>',
+      laundry:'<p><strong>Cilşûştin:</strong> cilên ronî bi hev û cilên tarî bi hev bin, da ku reng nevegirin.</p>'
+    }
+  },
+
+  so: {
+    rtl:false,
+    ui:{
+      progress:'Horumarkaaga',
+      speed:'Xawaare',
+      mute:'Aamus',
+      help:'Caawin',
+      achievements:'Abaalmarin',
+      voice:'Cod',
+      check:'Hubi',
+      next:'Xiga',
+      reset:'Dib u dajin',
+      tip:'Talo',
+      ok:'OK'
+    },
+    diff:{easy:'Fudud',medium:'Dhexdhexaad',hard:'Adag'},
+    tasks:[
+      {key:'rubbish',title:'Kala saar Qashinka',scenario:'Kadib casho waxaad nadiifinaysaa. Ku rid qashinka saxda ah.',instructions:'Jiido walxaha qashinka ku habboon.',tip:'Dhalo, qasacan iyo kartoon dib loo warshadayn karo.'},
+      {key:'laundry',title:'Kala saar Dharka',scenario:'Maalin dhaqid. Midabada kala saar.',instructions:'Cadcad hal meel, madow meel kale.',tip:'Midab madow wuu ku daadan karaa caddaanka.'},
+      {key:'hands',title:'Gacmo dhaqid',scenario:'Ka hor cuntada, dhaq gacmaha si fiican.',instructions:'Ku dhufo tillaabooyinka si sax ah.',tip:'Dhaq ugu yaraan 20 ilbiriqsi.'},
+      {key:'kitchen',title:'Nadiifinta jikada',scenario:'Ka dib karinta, si tartiib ah u nadiifi saxamada.',instructions:'Raac tillaabooyinka dhaqda.',tip:'Ku raaci ka hor saabuunta iyo ka dib.'}
+    ],
+    bins:{recycle:'Dib u warshadayn',trash:'Qashin guud'},
+    laundry:{lights:'Midab khafiif',darks:'Midab madow'},
+    items:{
+      rubbish:{
+        can:'Dhalo can',
+        bottle:'Dhalo',
+        paper:'Warqad',
+        food:'Cunto haray',
+        tissue:'Tishu',
+        cardboard:'Kartoon',
+        carton:'Kartoon cabitaan'
+      },
+      laundry:{
+        whiteShirt:'Shaati cad',
+        whiteSocks:'Sharabaado cad',
+        lightTop:'Funaanad khafiif ah',
+        blackJacket:'Jaakad madow',
+        jeans:'Jiins',
+        scarf:'Scarf',
+        dress:'Dharkii'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'Biyayn',
+        soap:'Saabuun',
+        scrub:'Xoqid 20 ilbiriqsi',
+        rinse:'Biyo raacin',
+        dry:'Qallajin'
+      },
+      kitchen:{
+        scrape:'Ka xoq hadhaaga',
+        rinse1:'Ku raaci biyo',
+        soap:'Saabuun',
+        scrub:'Xoqid',
+        rinse2:'Mar kale ku raaci',
+        dry:'Qallajin'
+      }
+    },
+    feedback:{ok:'Shaqo fiican!',nope:'Mar kale isku day.'},
+    result:{
+      titleWin:'Aad baad u fiicnayd!',
+      titleLose:'Naso oo mar kale isku day',
+      msgWin:'Waxaad dhammaysay hawshan. Waxaad sii wadan kartaa ama mar kale u ciyaari kartaa.',
+      msgLose:'Mar kale isku day si aad u hesho dhibco fiican.',
+      playAgain:'Mar kale billow',
+      endGame:'Dhamee ciyaarta'
+    },
+    help:{
+      recycling:'<p><strong>Dib u warshadayn:</strong> qasacadaha, dhalooyinka iyo kartoonka geli ♻️. Cuntada hartay iyo tishuhu waxay galaan qashinka.</p>',
+      laundry:'<p><strong>Dharka:</strong> dharka iftiinka ah meel iyo kuwa madow meel kale dhig si midabku uusan u daadan.</p>'
+    }
+  },
+
+  am: {
+    rtl:false,
+    ui:{
+      progress:'እድገትህ',
+      speed:'ፍጥነት',
+      mute:'መቆም',
+      help:'እርዳታ',
+      achievements:'ሽልማት',
+      voice:'ድምጽ',
+      check:'አረጋግጥ',
+      next:'ቀጥሎ',
+      reset:'ዳግም ጀምር',
+      tip:'ምክር',
+      ok:'እሺ'
+    },
+    diff:{easy:'ቀላል',medium:'መካከለኛ',hard:'ከባድ'},
+    tasks:[
+      {key:'rubbish',title:'ቆሻሻ መለያየት',scenario:'ከእራት በኋላ ቤት እየነጻጸርክ ነህ. ነገሮችን በትክክል አድርግ.',instructions:'እያንዳንዱን ስርዓት ወደ ተገቢው ቦታ ጎትት.',tip:'ታሸገ ብረት ጠርሙስ እና ካርቶን ይደገማሉ. ምግብ ቀሪ እና እጅ ማታለያ ወደ ቆሻሻ.'},
+      {key:'laundry',title:'ልብስ መለያየት',scenario:'የልብስ ማጠብ ቀን ነው. ቀለም አትቀላቅል.',instructions:'ብርሃን ከብርሃን ጋር, ጥቁር ከጥቁር ጋር.',tip:'ጥቁር ቀለም ሊያልፍ ይችላል.'},
+      {key:'hands',title:'እጅ ማጠብ',scenario:'ከምግብ በፊት እጅህን በትክክል አጠብ.',instructions:'ደረጃዎችን በትክክል እንኳን.',tip:'ቢያንስ 20 ሰከንድ ይታጠብ.'},
+      {key:'kitchen',title:'ኩዌን ማጽጃ',scenario:'ከምግብ በኋላ ሳህን በደረጃ አጽዳ.',instructions:'የመታጠብ ቅደም ተከተል ተከትል.',tip:'ሳሙና በፊት እና በኋላ ርጥበት.'}
+    ],
+    bins:{recycle:'እንደገና መጠቀም',trash:'ቆሻሻ'},
+    laundry:{lights:'ነጭ',darks:'ጥቁር'},
+    items:{
+      rubbish:{
+        can:'ቲን',
+        bottle:'ባቡር/ጠርሙስ',
+        paper:'ወረቀት',
+        food:'ቀሪ ምግብ',
+        tissue:'ማታለያ',
+        cardboard:'ካርቶን',
+        carton:'ካርቶን ጭማቂ'
+      },
+      laundry:{
+        whiteShirt:'ነጭ ሸሚዝ',
+        whiteSocks:'ነጭ ጉልበት',
+        lightTop:'ብርሃን ልብስ',
+        blackJacket:'ጥቁር ጀኬት',
+        jeans:'ጂንስ',
+        scarf:'ሸሚዝ/ስካርፍ',
+        dress:'የልብስ ቀሚስ'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'አታርም',
+        soap:'ሳቡን',
+        scrub:'20 ሰከንድ መታጠብ',
+        rinse:'መታጠብ',
+        dry:'መረቅ'
+      },
+      kitchen:{
+        scrape:'ቅሪት ማስወገድ',
+        rinse1:'መታጠብ',
+        soap:'ሳቡን',
+        scrub:'መስረዝ',
+        rinse2:'እንደገና መታጠብ',
+        dry:'መረቅ'
+      }
+    },
+    feedback:{ok:'ጥሩ ስራ!',nope:'እንደገና ሞክር.'},
+    result:{
+      titleWin:'እጅግ ጥሩ!',
+      titleLose:'ቀጣይ ጊዜ ይሻላል',
+      msgWin:'እርስዎ ይህን ተግባር ጨርሰዋል። መቀጠል ወይም እንደገና ጀምር ትችላለህ።',
+      msgLose:'የተሻለ ውጤት ለማግኘት እንደገና መሞከር ትችላለህ።',
+      playAgain:'እንደገና ጀምር',
+      endGame:'ጨዋታውን ጨርስ'
+    },
+    help:{
+      recycling:'<p><strong>እንደገና መጠቀም:</strong> ቲን፣ ባቡር እና ካርቶን በማዳበሪያ ሳጥን ይገባሉ። የምግብ ቅሪት እና ማታለያ በቆሻሻ ይገባሉ።</p>',
+      laundry:'<p><strong>ልብስ ማጠብ:</strong> ነጭ ልብሶችን ከጥቁር ልብሶች ይለይ፣ ቀለም እንዳይጠፋ።</p>'
+    }
+  },
+
+  om: {
+    rtl:false,
+    ui:{
+      progress:'Hojii kee',
+      speed:'Saffisa',
+      mute:'Akka hin dhageenye',
+      help:'Gargaarsa',
+      achievements:'Milkaa\'inoota',
+      voice:'Sagalee',
+      check:'Mirkaneessi',
+      next:'Itti aanee',
+      reset:'Deebi\'i',
+      tip:'Taasisa',
+      ok:'TOLE'
+    },
+    diff:{easy:'Salphaa',medium:'Giddu galeessa',hard:'Cimina'},
+    tasks:[
+      {key:'rubbish',title:'Qashii addaan baasuu',scenario:'Booda nyaataa naannoo qulqulleessuu jirta. Wantoota sirriitti qoodi.',instructions:'Wanta hunda sanduuqa sirrii keessa harkisi.',tip:'Qutii, dhaloota, kaaratoona deebisanii fayyadamu.'},
+      {key:'laundry',title:'Uffata addaan baasuu',scenario:'Guyyaa dhiqannaa. Halluu addaan qoodi.',instructions:'Ifaa waliin, gurraacha waliin.',tip:'Halluun gurraacha ifaa balleessu danda\'a.'},
+      {key:'hands',title:'Harka dhiqachuu',scenario:'Waan nyaattu dura harka sirriitti dhiqadhu.',instructions:'Sadarkaa sirrii hordofuu.',tip:'Daqiiqaa 20 tti xiinxalli.'},
+      {key:'kitchen',title:'Qulqullina kitchinii',scenario:'Boodarra nyaata, saxaraa sirnaan dhiqadhu.',instructions:'Sirna dhiqannaa hordofuu.',tip:'Sabuunii dura fi boodarra dhiqadhu.'}
+    ],
+    bins:{recycle:'Deebisanii fayyadamuu',trash:'Qashii'},
+    laundry:{lights:'Ifaa',darks:'Gurraacha'},
+    items:{
+      rubbish:{
+        can:'Qutii',
+        bottle:'Danqii',
+        paper:'Karaatoo',
+        food:'Hafe nyaata',
+        tissue:'Tishu',
+        cardboard:'Kaaratoona',
+        carton:'Kaartoon dhugaatii'
+      },
+      laundry:{
+        whiteShirt:'Shaartii adii',
+        whiteSocks:'Kaalsii adii',
+        lightTop:'Uffata ifaa',
+        blackJacket:'Jaaketti gurraacha',
+        jeans:'Jiinisii',
+        scarf:'Scarfii',
+        dress:'Uffata dubartii'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'Ni jiidhu',
+        soap:'Sabuun',
+        scrub:'Sekondii 20 xoqi',
+        rinse:'Dhiqadhu',
+        dry:'Goggoysi'
+      },
+      kitchen:{
+        scrape:'Hafe nyaataa buqqisi',
+        rinse1:'Dhiqadhu',
+        soap:'Sabuun',
+        scrub:'Xoqi',
+        rinse2:'Irra deebi\'i dhiqadhu',
+        dry:'Goggoysi'
+      }
+    },
+    feedback:{ok:'Gaarii!',nope:'Irra deebi\'i.'},
+    result:{
+      titleWin:'Baga milkaa\'te!',
+      titleLose:'Yeroo itti aanu ni fooyya\'a',
+      msgWin:'Hojii kana xumurte. Itti fufa ykn irra deebi\'i hojjedhu.',
+      msgLose:'Bu\'aa gaarii argachuuf irra deebi\'i dargaggoota.',
+      playAgain:'Irra deebi\'i jalqabi',
+      endGame:'Taphaa dhaabi'
+    },
+    help:{
+      recycling:'<p><strong>Deebisanii fayyadamuu:</strong> qutii, danqii, karaatoo fi kaaratoona gara sanduuqa deebisanii fayyadamuu galchi. Hafe nyaataa fi tishu gara qashii galchi.</p>',
+      laundry:'<p><strong>Uffata dhiqachuu:</strong> uffata ifaa fi gurraacha addaan qodi; halluun gurraacha uffata ifaa hin balleessiin.</p>'
+    }
+  },
+
+  tig: {
+    rtl:false,
+    ui:{
+      progress:'ትሕዝቶ',
+      speed:'ፍጥነት',
+      mute:'ምቁራጽ',
+      help:'ሓገዝ',
+      achievements:'ሽልማት',
+      voice:'ድምጺ',
+      check:'ምርመራ',
+      next:'ቀጻሊ',
+      reset:'መለስ',
+      tip:'መመርሒ',
+      ok:'እወ'
+    },
+    diff:{easy:'ቀሊል',medium:'መካከለኛ',hard:'ከባድ'},
+    tasks:[
+      {key:'rubbish',title:'ሓረግ ቆሻሻ',scenario:'ካብ መእተዊ በኋላ ቤት ንጹሕ ትግበር. ነገራት ብትክክል ክፈል.',instructions:'ነገራ ንድሕሪት ናብ ቦታ ውልድ.',tip:'ታሸገ ሓርግ ብርቱካና ካርቶን ይርሳይክል ይግበሩ.'},
+      {key:'laundry',title:'ልብስ ምልዋጥ',scenario:'ጀምር ምስልት. ሕብረት ቀለም ክፈል.',instructions:'ብሩር ከም ብሩር, ጸሊም ከም ጸሊም.',tip:'ጸሊም ሊያልፍ እዩ.'},
+      {key:'hands',title:'እጅ ምስናና',scenario:'ብፊት ምግቢ እጅኻ ንጹሕ ግበር.',instructions:'ደረጃታት ብትክክል ክትካይድ.',tip:'20 ሰከንድ ኣብ ዝኸውን ግበር.'},
+      {key:'kitchen',title:'መገዲ ምጽዓን',scenario:'ካብ ምግቢ በኋላ ሳሕኒ ብደረጃ ኣጽዓ.',instructions:'ቅድመ ተከተል ከተኮ.',tip:'ከመ ሳቡን እና ድሕሪ ሳቡን ምስናና.'}
+    ],
+    bins:{recycle:'ሪሳይክል',trash:'ክሳዕ'},
+    laundry:{lights:'ብሩር',darks:'ጸሊም'},
+    items:{
+      rubbish:{
+        can:'ቲን',
+        bottle:'መስታሕቲ',
+        paper:'ወረቐት',
+        food:'ቀሪ ምግቢ',
+        tissue:'ቲሹ',
+        cardboard:'ካርቶን',
+        carton:'ካርቶን ጭማቂ'
+      },
+      laundry:{
+        whiteShirt:'ነጭ ሸሚዝ',
+        whiteSocks:'ነጭ ኩርሲ',
+        lightTop:'ብሩር ልብስ',
+        blackJacket:'ጸሊም ጀኬት',
+        jeans:'ጂንስ',
+        scarf:'ስካርፍ',
+        dress:'ልብሰ ናር'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'ምሓላዋ',
+        soap:'ሳቡን',
+        scrub:'20 ሰከንድ ምትሓላላ',
+        rinse:'ምስናና',
+        dry:'ምድረት'
+      },
+      kitchen:{
+        scrape:'ምቕፃል ቀሪ ምግቢ',
+        rinse1:'ምስናና',
+        soap:'ሳቡን',
+        scrub:'ምትሓላላ',
+        rinse2:'እንደገና ምስናና',
+        dry:'ምድረት'
+      }
+    },
+    feedback:{ok:'ጽቡቕ!',nope:'ደጊም ፈትን.'},
+    result:{
+      titleWin:'ኣፈርን!',
+      titleLose:'ጊዜ ቀጻሊ ይሕይወት',
+      msgWin:'እዚ ስራሕ ወዲእኻዮ. ክትቀጽል ወይ ክትጀምር እንደገና ትክእል.',
+      msgLose:'ክትሞክር ድጊም ትክእል ንውጤት ይሕይወት.',
+      playAgain:'እንደገና ጀምር',
+      endGame:'ጨዋታ ዝግ'
+    },
+    help:{
+      recycling:'<p><strong>ሪሳይክል:</strong> ቲን፣ መስታሕቲ፣ ወረቐት እና ካርቶን ናብ ሪሳይክል ይኣቱ። ቀሪ ምግቢ እና ቲሹ ናብ ክሳዕ ይኣቱ።</p>',
+      laundry:'<p><strong>ልብስ ምልዋጥ:</strong> ብሩር ልብስ ከም ብሩር ንዓብል፣ ጸሊም ከም ጸሊም ንዓብል.</p>'
+    }
+  },
+
+  nus: {
+    rtl:false,
+    ui:{
+      progress:'Rɛy',
+      speed:'Cïïm',
+      mute:'Cɔk',
+      help:'Ka mïny',
+      achievements:'Gɔ̈l',
+      voice:'Leec',
+      check:'Cäk',
+      next:'Gɔa',
+      reset:'Cïïŋ',
+      tip:'Thïn',
+      ok:'OK'
+    },
+    diff:{easy:'Yïïn',medium:'Cɛc',hard:'Mïn yaŋ'},
+    tasks:[
+      {key:'rubbish',title:'Päth thuk',scenario:'Cä kɛ rään ku cï cɔl. Pïth e thuk pi thïn.',instructions:'Wët ke yin pïth ka thuk cien.',tip:'Caan, botal, kaaton tö rïcikil.'},
+      {key:'laundry',title:'Päth ciët',scenario:'Cä raan ciët. Riin thïn.',instructions:'Pïth ka pïth, kur ka kur.',tip:'Kur piny yïn pïth.'},
+      {key:'hands',title:'Lɔa ke rään',scenario:'Acï lɔa rään ca ke raan.',instructions:'Däk ke luɔk pi tïn.',tip:'Kɛ 20 second.'},
+      {key:'kitchen',title:'Lɔa diët',scenario:'Apiny raan, lɔa diët daa.',instructions:'Luɔk pi tïn.',tip:'Lɛ before sabun acë after sabun.'}
+    ],
+    bins:{recycle:'Rïcikil',trash:'Raan'},
+    laundry:{lights:'Pïth',darks:'Kur'},
+    items:{
+      rubbish:{
+        can:'Caan',
+        bottle:'Botal',
+        paper:'Pepa',
+        food:'Rään thuk',
+        tissue:'Tishuu',
+        cardboard:'Kaaton',
+        carton:'Kaaton jius'
+      },
+      laundry:{
+        whiteShirt:'Ciët pïth',
+        whiteSocks:'Cok pïth',
+        lightTop:'Ciët pïth thin',
+        blackJacket:'Jaket kur',
+        jeans:'Jiinis',
+        scarf:'Skaaf',
+        dress:'Dirɛs'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'Lɔa pïth',
+        soap:'Sabun',
+        scrub:'Lɔa 20 second',
+        rinse:'Lɔa ke wec',
+        dry:'Lɔa kɔc'
+      },
+      kitchen:{
+        scrape:'Cuk rään',
+        rinse1:'Lɔa',
+        soap:'Sabun',
+        scrub:'Luɔk',
+        rinse2:'Lɔa ke wec',
+        dry:'Kɔc'
+      }
+    },
+    feedback:{ok:'Ram!',nope:'Cä again.'},
+    result:{
+      titleWin:'Ram raan!',
+      titleLose:'Yïn ca dïïth cï bäŋ',
+      msgWin:'Yïn pïth ke raan. Ci ke gɔa anï ke raan wa ca cïïŋ.',
+      msgLose:'Ci ca cïïŋ ke raan ba pïth gɔl.',
+      playAgain:'Cïïŋ ke raan',
+      endGame:'Ji gɔl'
+    },
+    help:{
+      recycling:'<p><strong>Rïcikil:</strong> caan, botal, pepa ka kaaton tö rïcikil. Rään thuk ke tissue tö raan.</p>',
+      laundry:'<p><strong>Päth ciët:</strong> ciët pïth ka pïth, kur ka kur, da kur ba pïth bïn.</p>'
+    }
+  },
+
+  ff: {
+    rtl:false,
+    ui:{
+      progress:'Jokkondiral maa',
+      speed:'Yaage',
+      mute:'Muumde',
+      help:'Ballal',
+      achievements:'Ngorgu',
+      voice:'Darre',
+      check:'Ƴeewto',
+      next:'Jooni',
+      reset:'Fuɗɗito',
+      tip:'Tippere',
+      ok:'OK'
+    },
+    diff:{easy:'Weeɗnde',medium:'Dhexe',hard:'Cewɗo'},
+    tasks:[
+      {key:'rubbish',title:'Leñol fuccere',scenario:'Caggal ñebbak, ɗiiɗi suuɗi. Fannu e jam.',instructions:'Njaaci kala oo e coƴngel mo joomi.',tip:'Konndi, bootal e kartoŋ ngesa yiilta.'},
+      {key:'laundry',title:'Leñol kañum',scenario:'Ñalawol ñiiɓngol. Wara suttude noone.',instructions:'Weendu e weendu, Ɗuuɗu e Ɗuuɗu.',tip:'Ɗuuɗu ena waawi ɓeddi weendu.'},
+      {key:'hands',title:'Holko jiŋe',scenario:'Hade to ñaamde, hollu jiige maa.',instructions:'Toɓɓu darjaaji sa\'a e sa\'a.',tip:'Cakkitii 20 hojoma.'},
+      {key:'kitchen',title:'Fayde kusine',scenario:'Caggal ñaamde, naani ko duddugol e duddugol.',instructions:'Tiiɗno rewte duddol.',tip:'Fuɗɗo ko adii sabuuni tee caggal.'}
+    ],
+    bins:{recycle:'Yiilta',trash:'Fuccere'},
+    laundry:{lights:'Weendu',darks:'Ɗuuɗu'},
+    items:{
+      rubbish:{
+        can:'Konndi',
+        bottle:'Bootal',
+        paper:'Kaagel',
+        food:'Nyaamde heddii',
+        tissue:'Tisuu',
+        cardboard:'Kartoŋ',
+        carton:'Kartoŋ juus'
+      },
+      laundry:{
+        whiteShirt:'Kañu weendu',
+        whiteSocks:'Saafu weendu',
+        lightTop:'Kañu weendu seeɗa',
+        blackJacket:'Jaaketa Ɗuuɗu',
+        jeans:'Jeans',
+        scarf:'Esar',
+        dress:'Kabba'
+      }
+    },
+    steps:{
+      hands:{
+        wet:'Yiɗɗito',
+        soap:'Sabuune',
+        scrub:'Coftu 20 sa\'a',
+        rinse:'Yiilta ngal',
+        dry:'Nattito'
+      },
+      kitchen:{
+        scrape:'Momtu heddii',
+        rinse1:'Yiilta',
+        soap:'Sabuune',
+        scrub:'Coftu',
+        rinse2:'Yiilta gooto',
+        dry:'Nattito'
+      }
+    },
+    feedback:{ok:'Jam tan!',nope:'Puɗɗito kadi.'},
+    result:{
+      titleWin:'A jaaraama!',
+      titleLose:'Puɗɗito kadi, ko fota',
+      msgWin:'Ko fii eɗi waɗi golle maa. Aɗa waawi jokkude walla fuɗɗita haan-maa.',
+      msgLose:'Fuɗɗito kadi ngam a heɓde golle ɓeɗɗi.',
+      playAgain:'Fuɗɗito',
+      endGame:'Gasirde joopa'
+    },
+    help:{
+      recycling:'<p><strong>Yiilta:</strong> konndi, bootal e kartoŋ eno waɗa yiilta. Nyaamde heddii e tisuu ndii fuccere.</p>',
+      laundry:'<p><strong>Kañum:</strong> weendu e weendu, Ɗuuɗu e Ɗuuɗu yo faandaaki ndee waawaa ɓeddi.</p>'
+    }
+  }
+};
+
+// Game state
+const state = {
+  lang: localStorage.getItem('ktl_lang') || 'en',
+  task: +(localStorage.getItem('ktl_task') || 0),
+  stars: +(localStorage.getItem('ktl_stars') || 0),
+  done: JSON.parse(localStorage.getItem('ktl_done') || '[]'),
+  difficulty: localStorage.getItem('ktl_diff') || 'easy',
+  speed: JSON.parse(localStorage.getItem('ktl_speed') || 'false'),
+  muted: JSON.parse(localStorage.getItem('ktl_mute') || 'false')
+};
+
+function save(){
+  localStorage.setItem('ktl_lang', state.lang);
+  localStorage.setItem('ktl_task', state.task);
+  localStorage.setItem('ktl_stars', state.stars);
+  localStorage.setItem('ktl_done', JSON.stringify(state.done));
+  localStorage.setItem('ktl_diff', state.difficulty);
+  localStorage.setItem('ktl_speed', JSON.stringify(state.speed));
+  localStorage.setItem('ktl_mute', JSON.stringify(state.muted));
+}
+
+function t(){ return L[state.lang] || L.en; }
+
+// UI renderers
+function renderJourney(){
+  $('#journeyTitle').textContent = noDash(t().ui.progress);
+  const track = $('#track'); 
+  track.innerHTML='';
+  const EMOJI={rubbish:'🗑️',laundry:'👕',hands:'🧼',kitchen:'🍽️'};
+  t().tasks.forEach((task,i)=>{
+    const d=document.createElement('div');
+    d.className='node'+(state.task===i?' active':'')+(state.done.includes(i)?' done':'');
+    d.innerHTML = `${EMOJI[task.key]||'⭐'}<small>${noDash(task.title.split(' ')[0])}</small>`;
+    d.tabIndex=0; d.setAttribute('role','button'); d.setAttribute('aria-label', noDash(task.title));
+    const go=()=>{ stopTimer(); state.task=i; save(); $('#resultModal').classList.remove('show'); renderTask(); renderJourney(); if(state.speed) startTimer(); };
+    d.addEventListener('click',go);
+    d.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+    track.appendChild(d);
+  });
+  $('#stars').textContent = `⭐ ${state.stars}`;
+}
+
+let seq=[]; 
+let mistakes=0; 
+let timer=null; 
+let timeLeft=0;
+
+// simple shuffle helper
+function shuffle(arr){
+  return arr
+    .map(v=>({v, r:Math.random()}))
+    .sort((a,b)=>a.r-b.r)
+    .map(o=>o.v);
+}
+
+function renderTask(){
+  const lang=t(); 
+  const info=lang.tasks[state.task];
+
+  document.body.classList.toggle('rtl', !!lang.rtl);
+
+  $('#taskTitle').textContent = noDash(`Task ${state.task+1}: ${info.title}`);
+  $('#badge').textContent = noDash(lang.diff[state.difficulty] || '');
+  $('#scenario').textContent = noDash(info.scenario);
+  $('#instructions').textContent = noDash(info.instructions);
+  $('#tip').textContent = noDash(info.tip);
+
+  $('#lblSpeed').textContent = noDash(lang.ui.speed);
+  $('#lblMute').textContent = noDash(lang.ui.mute);
+  $('#lblHelp').textContent = noDash(lang.ui.help);
+  $('#lblAch').textContent = noDash(lang.ui.achievements);
+  $('#lblVoice').textContent = noDash(lang.ui.voice);
+  $('#lblCheck').textContent = noDash(lang.ui.check);
+  $('#lblNext').textContent = noDash(lang.ui.next);
+  $('#lblReset').textContent = noDash(lang.ui.reset);
+  $('#helpTitle').textContent = noDash(lang.ui.help);
+  $('#achTitle').textContent = noDash(lang.ui.achievements);
+  $('#lblTip').textContent = noDash(lang.ui.tip);
+  $('#lblHelpOk').textContent = noDash(lang.ui.ok);
+  $('#lblAchOk').textContent = noDash(lang.ui.ok);
+
+  // result modal labels (defaults to "win" text)
+  if(lang.result){
+    $('#lblRestart').textContent = noDash(lang.result.playAgain);
+    $('#lblEndGame').textContent = noDash(lang.result.endGame);
+    $('#resultTitle').textContent = noDash(lang.result.titleWin);
+    $('#resultMessage').textContent = noDash(lang.result.msgWin);
+  }
+
+  $('#fill').style.width='0%'; 
+  $('#cleanBar').style.width='0%'; 
+  $('#cleanPct').textContent='0%';
+  $('#next').style.display='none'; 
+  $('#check').style.display='inline-block';
+
+  const g=$('#game'); 
+  g.innerHTML=''; 
+  seq=[]; 
+  mistakes=0;
+
+  const infoKey = info.key;
+
+  if(infoKey==='rubbish'){
+    // rubbish items with translated labels
+    const R = lang.items?.rubbish || {};
+    const base=[
+      {icon:'🥫',type:'recycle',label:R.can||'Can'},
+      {icon:'🥤',type:'recycle',label:R.bottle||'Bottle'},
+      {icon:'📄',type:'recycle',label:R.paper||'Paper'},
+      {icon:'🍌',type:'trash',label:R.food||'Food'},
+      {icon:'🧻',type:'trash',label:R.tissue||'Tissue'}
+    ];
+    let items;
+    if(state.difficulty==='hard'){
+      items=[...base,
+        {icon:'📦',type:'recycle',label:R.cardboard||'Cardboard'},
+        {icon:'🧃',type:'recycle',label:R.carton||'Carton'}
+      ];
+    } else if(state.difficulty==='medium'){
+      items=[...base,
+        {icon:'📦',type:'recycle',label:R.cardboard||'Cardboard'}
+      ];
+    } else {
+      items=base;
+    }
+    renderSorting(g,items,[
+      {zone:'recycle',title:lang.bins.recycle},
+      {zone:'trash',title:lang.bins.trash}
+    ]);
+
+  } else if(infoKey==='laundry'){
+    // laundry items with SVG for shirts / tops / dark trousers etc.
+    const Ld = lang.items?.laundry || {};
+
+    const svgWhiteShirt = `
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 10 L32 4 L44 10 L40 20 L40 52 H24 L24 20 Z" fill="#ffffff" stroke="#e5e7eb" stroke-width="2"/>
+      </svg>`;
+    const svgLightTop = `
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 12 L32 6 L46 12 L42 24 L42 50 H22 L22 24 Z" fill="#e5f0ff" stroke="#cbd5e1" stroke-width="2"/>
+      </svg>`;
+    const svgBlackJacket = `
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 8 L30 8 L34 20 L38 8 L50 8 L46 52 H18 Z" fill="#111827" stroke="#4b5563" stroke-width="2"/>
+      </svg>`;
+    const svgJeans = `
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 8 H42 L40 56 H34 L32 34 L30 56 H24 Z" fill="#1f2937" stroke="#9ca3af" stroke-width="2"/>
+      </svg>`;
+    const svgDress = `
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <path d="M28 8 H36 L40 20 L46 34 L40 56 H24 L18 34 L24 20 Z" fill="#f9a8d4" stroke="#f472b6" stroke-width="2"/>
+      </svg>`;
+
+    const base=[
+      {icon:svgWhiteShirt,type:'lights',label:Ld.whiteShirt||'White Shirt'},
+      {icon:'🧦',type:'lights',label:Ld.whiteSocks||'White Socks'}, // socks stay emoji
+      {icon:svgLightTop,type:'lights',label:Ld.lightTop||'Light Top'},
+      {icon:svgBlackJacket,type:'darks',label:Ld.blackJacket||'Black Jacket'},
+      {icon:svgJeans,type:'darks',label:Ld.jeans||'Jeans'}
+    ];
+    let items;
+    if(state.difficulty==='hard'){
+      items=[...base,
+        {icon:'🧣',type:'darks',label:Ld.scarf||'Scarf'},
+        {icon:svgDress,type:'lights',label:Ld.dress||'Dress'}
+      ];
+    } else if(state.difficulty==='medium'){
+      items=[...base,
+        {icon:'🧣',type:'darks',label:Ld.scarf||'Scarf'}
+      ];
+    } else {
+      items=base;
+    }
+    renderSorting(g,items,[
+      {zone:'lights',title:lang.laundry.lights},
+      {zone:'darks',title:lang.laundry.darks}
+    ]);
+
+  } else if(infoKey==='hands'){
+    renderSequence(g, buildHandsSteps(lang));
+
+  } else { // kitchen
+    renderSequence(g, buildKitchenSteps(lang));
+  }
+
+  if(state.speed){ 
+    startTimer(); 
+  } else { 
+    stopTimer(); 
+    $('#timer').style.display='none'; 
+  }
+  renderJourney();
+}
+
+function buildHandsSteps(lang){
+  const S = lang.steps?.hands || {};
+  const order = ['wet','soap','scrub','rinse','dry'];
+
+  let use;
+  if(state.difficulty==='hard') use = order;
+  else if(state.difficulty==='medium') use = order.slice(0,4);
+  else use = order.slice(0,3); // easier: fewer steps
+
+  const emojiMap = {
+    wet:'💧',
+    soap:'🧼',
+    scrub:'🫧',
+    rinse:'💦',
+    dry:'🧻'
+  };
+
+  const steps = use.map((key,idx)=>({
+    idx, 
+    emoji: emojiMap[key] || '🔹',
+    label: S[key] || key
+  }));
+
+  // display shuffled but order is encoded in idx
+  return shuffle(steps);
+}
+
+function buildKitchenSteps(lang){
+  const S = lang.steps?.kitchen || {};
+  const order = ['scrape','rinse1','soap','scrub','rinse2','dry'];
+
+  let use;
+  if(state.difficulty==='hard') use = order;
+  else if(state.difficulty==='medium') use = order.slice(0,5);
+  else use = order.slice(0,4); // easy: fewer actions
+
+  const emojiMap = {
+    scrape:'🗑️',
+    rinse1:'💦',
+    soap:'🧼',
+    scrub:'🧽',
+    rinse2:'💦',
+    dry:'🧻'
+  };
+
+  const steps = use.map((key,idx)=>({
+    idx,
+    emoji: emojiMap[key] || '🔹',
+    label: S[key] || key
+  }));
+
+  return shuffle(steps);
+}
+
+function renderSorting(root,items,zones){
+  const pool=document.createElement('div'); 
+  pool.className='play';
+  const bag=document.createElement('div');
+
+  items.forEach((it,i)=>{
+    const el=document.createElement('div'); 
+    el.className='item'; 
+    el.draggable=true; 
+    el.tabIndex=0; 
+    el.dataset.type=it.type; 
+    el.dataset.id=i;
+    el.innerHTML = `<div class="icon">${it.icon}</div><div class="label">${noDash(it.label)}</div>`;
+    el.addEventListener('dragstart',e=>{
+      AudioKit.beep(520,60); 
+      e.dataTransfer.setData('text/plain',JSON.stringify({id:i,type:it.type}));
+      el.style.opacity=.5;
+    });
+    el.addEventListener('dragend',()=>{el.style.opacity=1;});
+    el.addEventListener('keydown',e=>{
+      if(e.key==='Enter'||e.key===' '){
+        const first=document.querySelector('.zone'); 
+        if(first) first.appendChild(el); 
+        updateProgress(); 
+        AudioKit.beep(520,60);
+      }
+    });
+    bag.appendChild(el);
+  });
+  pool.appendChild(bag);
+
+  const grid=document.createElement('div'); 
+  grid.className='zone-grid';
+  zones.forEach(z=>{
+    const dz=document.createElement('div'); 
+    dz.className='zone'; 
+    dz.dataset.zone=z.zone; 
+    dz.innerHTML=`<div class="zone-head">${z.zone==='recycle'?'♻️':'🧺'} ${noDash(z.title)}</div>`;
+    dz.addEventListener('dragover',e=>{e.preventDefault(); dz.classList.add('drag');});
+    dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+    dz.addEventListener('drop',e=>{
+      e.preventDefault(); 
+      dz.classList.remove('drag'); 
+      try{
+        const data=JSON.parse(e.dataTransfer.getData('text/plain')); 
+        const el=document.querySelector(`.item[data-id="${data.id}"]`); 
+        if(el){ 
+          dz.appendChild(el); 
+          updateProgress(); 
+          AudioKit.beep(600,60,'triangle'); 
+        }
+      }catch(err){}
+    });
+    grid.appendChild(dz);
+  });
+
+  root.appendChild(pool); 
+  root.appendChild(grid);
+}
+
+function renderSequence(root,steps){
+  seq=[];
+  const wrap=document.createElement('div'); 
+  wrap.className='steps';
+  steps.forEach(step=>{
+    const b=document.createElement('button'); 
+    b.className='step'; 
+    b.type='button'; 
+    b.innerHTML=`<div class="icon">${step.emoji}</div>${noDash(step.label)}`;
+    b.addEventListener('click',()=>handleStep(step.idx,b,steps.length));
+    wrap.appendChild(b);
+  });
+  root.appendChild(wrap);
+}
+
+function handleStep(idx,el,total){
+  if(seq.includes(idx)) return;
+  if(idx===seq.length){
+    seq.push(idx); 
+    el.classList.add('done'); 
+    updateProgress(); 
+    AudioKit.beep(720,70,'square'); 
+    if(seq.length===total){ 
+      success(); 
+    }
+  } else {
+    el.classList.add('wrong'); 
+    setTimeout(()=>el.classList.remove('wrong'),240); 
+    mistakes++; 
+    AudioKit.beep(220,140,'sawtooth'); 
+    toast(t().feedback.nope,false); 
+  }
+}
+
+function updateProgress(){
+  let pct=0; 
+  const key=t().tasks[state.task].key;
+  if(key==='rubbish'||key==='laundry'){
+    const total=document.querySelectorAll('.item').length; 
+    const placed=document.querySelectorAll('.zone .item').length; 
+    if(total>0) pct=Math.round((placed/total)*100);
+  } else { 
+    const total=document.querySelectorAll('.step').length; 
+    if(total>0) pct=Math.round((seq.length/total)*100); 
+  }
+  $('#fill').style.width=pct+'%'; 
+  $('#cleanBar').style.width=pct+'%'; 
+  $('#cleanPct').textContent=pct+'%';
+}
+
+function toast(text,ok=true){
+  const old=document.querySelector('.toast'); 
+  if(old) old.remove();
+  const d=document.createElement('div'); 
+  d.className='toast'; 
+  d.textContent=noDash(text);
+  document.body.appendChild(d); 
+  setTimeout(()=>d.remove(),1800);
+}
+
+function showResult(win){
+  const lang = t();
+  const r = lang.result || {};
+  $('#resultTitle').textContent = noDash(win ? (r.titleWin||'Well done!') : (r.titleLose||'Better luck next time'));
+  $('#resultMessage').textContent = noDash(win ? (r.msgWin||'You finished this task.') : (r.msgLose||'You can try again.'));
+  $('#lblRestart').textContent = noDash(r.playAgain || 'Start again');
+  $('#lblEndGame').textContent = noDash(r.endGame || 'End game');
+  $('#lblNextTask').textContent = noDash(lang.ui.next || 'Next');
+  $('#btnNextTask').style.display = win ? 'inline-block' : 'none';
+  $('#resultModal').classList.add('show');
+}
+
+function success(){
+  if(state.speed && timeLeft<=0){
+    toast('Time up',false); 
+    showResult(false);
+    return; 
+  }
+  toast(t().feedback.ok,true);
+  AudioKit.beep(820,120); 
+  setTimeout(()=>AudioKit.beep(980,120),130);
+  state.stars += (state.difficulty==='hard'?20:state.difficulty==='medium'?15:10);
+  if(!state.done.includes(state.task)) state.done.push(state.task);
+  $('#stars').textContent=`⭐ ${state.stars}`;
+  $('#check').style.display='none'; 
+  $('#next').style.display='inline-block';
+  confetti();
+  save();
+  showResult(true);
+}
+
+function startTimer(){
+  stopTimer();
+  const base = state.difficulty==='hard'?35:state.difficulty==='medium'?50:65;
+  timeLeft = base;
+  $('#timer').style.display='inline-block';
+  $('#timer').textContent = base+'s';
+  timer=setInterval(()=>{
+    timeLeft--; 
+    $('#timer').textContent=timeLeft+'s';
+    if(timeLeft<=0){
+      stopTimer(); 
+      $('#timer').textContent='0s'; 
+      toast('Time up',false); 
+      $('#check').style.display='none'; 
+      $('#next').style.display='inline-block'; 
+      AudioKit.beep(180,260); 
+      showResult(false);
+    }
+  },1000);
+}
+function stopTimer(){ 
+  if(timer){clearInterval(timer); timer=null;} 
+}
+
+function confetti(){
+  const c=$('#confetti'),
+        ctx=c.getContext('2d'); 
+  c.width=innerWidth;
+  c.height=innerHeight;
+  const P=[];
+  for(let i=0;i<120;i++){
+    P.push({
+      x:Math.random()*c.width,
+      y:-10,
+      vx:(Math.random()-.5)*4,
+      vy:Math.random()*3+2,
+      s:Math.random()*6+3,
+      c:`hsl(${Math.random()*360},90%,60%)`,
+      r:Math.random()*6,
+      vr:(Math.random()-.5)*.2
+    });
+  }
+  (function loop(){
+    ctx.clearRect(0,0,c.width,c.height);
+    P.forEach(p=>{
+      p.x+=p.vx;
+      p.y+=p.vy;
+      p.vy+=.05;
+      p.r+=p.vr;
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.r);
+      ctx.fillStyle=p.c;
+      ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);
+      ctx.restore();
+    });
+    if(P.some(p=>p.y<c.height)) requestAnimationFrame(loop);
+  })();
+}
+
+// Buttons
+function check(){
+  const key=t().tasks[state.task].key;
+  if(key==='rubbish'||key==='laundry'){
+    const zones=document.querySelectorAll('.zone'); 
+    let ok=true, placed=0;
+    zones.forEach(z=>{
+      z.querySelectorAll('.item').forEach(it=>{
+        placed++; 
+        if(it.dataset.type!==z.dataset.zone){ 
+          ok=false; 
+          mistakes++; 
+          it.style.borderColor='var(--error)'; 
+          setTimeout(()=>it.style.borderColor='#e5e7eb',600); 
+        }
+      });
+    });
+    if(!placed){ 
+      toast('Place the items first',false); 
+      AudioKit.beep(220,160); 
+      return; 
+    }
+    if(ok) success(); 
+    else {
+      toast(t().feedback.nope,false); 
+      AudioKit.beep(220,160);
+    }
+  } else {
+    const total=document.querySelectorAll('.step').length; 
+    if(seq.length===total) success();
+    else {
+      toast('Finish the steps in order',false); 
+      AudioKit.beep(220,160);
+    }
+  }
+}
+
+function next(){ 
+  state.task=(state.task+1)%t().tasks.length; 
+  save(); 
+  $('#resultModal').classList.remove('show');
+  renderTask(); 
+  renderJourney(); 
+}
+
+function reset(){ 
+  state.task=0; 
+  state.stars=0; 
+  state.done=[]; 
+  save(); 
+  $('#resultModal').classList.remove('show');
+  renderTask(); 
+  renderJourney(); 
+  toast('Reset',true); 
+}
+
+// Mute + Speech
+function setMute(on){
+  state.muted = !!on;
+  window.__MUTED__ = state.muted;
+  if(state.muted && window.speechSynthesis){ 
+    try{ speechSynthesis.cancel(); }catch(e){} 
+  }
+  save();
+  $('#mute').checked = state.muted;
+}
+
+function speakCurrent(){
+  if(state.muted) return;
+  try{
+    const info=t().tasks[state.task];
+    const u=new SpeechSynthesisUtterance(noDash(`${info.title}. ${info.scenario}. ${info.instructions}`));
+    u.lang = t().rtl ? 'ar-SA' : 'en-GB';
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// Init
+function init(){
+  // Seed UI selections
+  $('#lang').value = state.lang;
+  $('#difficulty').value = state.difficulty;
+  $('#speedMode').checked = !!state.speed;
+  setMute(state.muted);
+
+  // Listeners
+  $('#lang').addEventListener('change',e=>{ 
+    state.lang=e.target.value; 
+    save(); 
+    renderTask(); 
+    renderJourney(); 
+  });
+  $('#difficulty').addEventListener('change',e=>{ 
+    state.difficulty=e.target.value; 
+    save(); 
+    renderTask(); 
+  });
+  $('#speedMode').addEventListener('change',e=>{ 
+    state.speed=e.target.checked; 
+    save(); 
+    if(state.speed) startTimer(); else stopTimer(); 
+  });
+  $('#mute').addEventListener('change',e=>{ setMute(e.target.checked); });
+  $('#check').addEventListener('click',check);
+  $('#next').addEventListener('click',next);
+  $('#reset').addEventListener('click',reset);
+  $('#speakBtn').addEventListener('click',speakCurrent);
+
+  // Help/Achievements modals
+  $('#helpBtn').addEventListener('click',()=>{
+    const h = t().help || {};
+    $('#helpContent').innerHTML = (h.recycling||'') + (h.laundry||'');
+    $('#help').classList.add('show');
+  });
+  $('#closeHelp').addEventListener('click',()=>$('#help').classList.remove('show'));
+  $('#achBtn').addEventListener('click',()=>{
+    const list = state.done.length 
+      ? state.done.map(i=>`<li>${noDash(t().tasks[i].title)}</li>`).join('') 
+      : '<li>—</li>';
+    $('#achList').innerHTML = list;
+    $('#achievements').classList.add('show');
+  });
+  $('#closeAch').addEventListener('click',()=>$('#achievements').classList.remove('show'));
+  document.querySelectorAll('.modal').forEach(m=>{
+    m.addEventListener('click',e=>{
+      if(e.target.classList.contains('modal')) m.classList.remove('show');
+    });
+  });
+
+  // result modal buttons
+  $('#btnRestart').addEventListener('click',()=>{
+    $('#resultModal').classList.remove('show');
+    renderTask();
+  });
+  $('#btnNextTask').addEventListener('click',next);
+  $('#btnEndGame').addEventListener('click',()=>{
+    reset();
+  });
+
+  renderTask(); 
+  renderJourney();
+}
+
+init();
+
+</script>
+...
+</script>
+
+
+</script>
+
+</body>
+</html>
+
+</body>
+</html>
