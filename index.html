@@ -136,7 +136,7 @@ footer h2{color:var(--white)}
   .work article,.work article.right{padding:24px 0;border-left:0}
   .skills{grid-template-columns:1fr}
 }
-@media (max-width:520px){nav ul li:nth-child(n+3){display:none}.fan{height:250px}}
+@media (max-width:520px){nav ul li:nth-child(n+2):not(:last-child){display:none}nav ul a{white-space:nowrap}.fan{height:250px}}
 </style>
 </head>
 <body>
@@ -145,8 +145,9 @@ footer h2{color:var(--white)}
   <nav aria-label="Main">
     <a class="mark" href="#top">Rahama Saleh</a>
     <ul>
+      <li><a href="#product">Product work</a></li>
       <li><a href="#ktl">Training tools</a></li>
-      <li><a href="#work">Projects</a></li>
+      <li><a href="#work">Data projects</a></li>
       <li><a href="#experience">Experience</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
@@ -159,7 +160,7 @@ footer h2{color:var(--white)}
       <h1 class="who">Hi, my name is Rahama Saleh. I am passionate about technology, products and people.</h1>
       <p class="lede">I have a First Class degree in Applied Computing and have worked in IT since 2018. Whether I am testing a platform before launch or building a training tool from scratch, I always start with the same question: what does the person using this actually need?</p>
       <div class="actions">
-        <a class="btn solid" href="#ktl">See my work</a>
+        <a class="btn solid" href="#product">See my work</a>
         <a class="btn ghost" href="Rahama%20Saleh%20CV.pdf">Download my CV</a>
       </div>
     </div>
@@ -170,6 +171,52 @@ footer h2{color:var(--white)}
     </div>
   </header>
 </div>
+
+<section class="block" id="product" style="padding-top:24px">
+  <div class="wrap">
+    <h2>Product work</h2>
+    <p class="lede">Shaping features, testing them with real users and deciding what to build next.</p>
+    <div class="work">
+      <article class="wide">
+        <h3>PantryPal: from product vision to first feature</h3>
+        <p class="meta">Product management case study, Python and Streamlit</p>
+        <p>PantryPal is a food waste app I came up with to practise the product process from start to finish. I wrote a product vision with SMART goals, then built an interactive decision matrix to choose which feature to build first. Change any score and the scoreboard reorders straight away.</p>
+        <div class="stats">
+          <div><div class="stat">30%</div><span>food waste reduction goal</span></div>
+          <div><div class="stat">5</div><span>features ranked against 5 weighted criteria</span></div>
+        </div>
+        <div class="links">
+          <a href="https://pantrypal-matrix.streamlit.app/">Try the decision matrix</a>
+          <a href="assets/pantrypal-product-vision.pdf">Read the product vision</a>
+          <a href="assets/pm-toolkit.pdf">See my PM toolkit</a>
+        </div>
+      </article>
+      <article class="wide">
+        <h3>Product and platform testing, TicketShack</h3>
+        <p class="meta">DMU Graduate Champions Internship, August to September 2026</p>
+        <p>I tested a live ticketing platform from both sides, as an event organiser and as someone buying tickets, across iOS, Chrome and Safari. I reported 21 issues on my first day, retested every fix, tested new features like the waitlist and event embedding on staging and worked with the founder to define the rules for a new referral scheme, which launched before I left.</p>
+        <div class="stats">
+          <div><div class="stat">21</div><span>issues reported on day one</span></div>
+          <div><div class="stat">100%</div><span>of reported issues fixed and retested</span></div>
+        </div>
+        <ul class="tags"><li>Feature scoping</li><li>Test planning</li><li>Bug reporting</li><li>Cross device testing</li></ul>
+      </article>
+      <article class="wide">
+        <h3>MedVerify: Medicine Verification System</h3>
+        <p class="meta">Dissertation, January to May 2025</p>
+        <p>My dissertation: an app that helps pharmacists check whether a medicine is genuine, counterfeit or expired. I built in role based access, so pharmacists and regulators each see what they need, and every participant in user testing completed every task. I have since rebuilt it in code, so you can try it yourself.</p>
+        <div class="stats">
+          <div><div class="stat">100%</div><span>task completion</span></div>
+          <div><div class="stat">80%</div><span>positive usability ratings</span></div>
+        </div>
+        <div class="links">
+          <a href="https://rahamasaleh1.github.io/MedicineVerificationSystem/">Try the app</a>
+          <a href="https://github.com/rahamasaleh1/MedicineVerificationSystem">View on GitHub</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
 
 <section class="featured" id="ktl">
   <div class="wrap">
@@ -225,29 +272,10 @@ footer h2{color:var(--white)}
 
 <section class="block" id="work">
   <div class="wrap">
-    <h2>Other projects</h2>
-    <p class="lede">A mix of testing, building and working with data.</p>
+    <h2>Data and technical projects</h2>
+    <p class="lede">Analysis, machine learning and tools I have built in Python.</p>
     <div class="work">
-      <article class="wide">
-        <h3>Product and platform testing, TicketShack</h3>
-        <p class="meta">DMU Graduate Champions Internship, August to September 2026</p>
-        <p>I tested a live ticketing platform from both sides, as an event organiser and as someone buying tickets, across iOS, Chrome and Safari. I found and reported issues like broken navigation and duplicate emails, tested new features before they went live and helped the founder shape a new referral scheme.</p>
-        <ul class="tags"><li>Test planning</li><li>Bug reporting</li><li>Cross device testing</li><li>Feature scoping</li></ul>
-      </article>
       <article>
-        <h3>MedVerify: Medicine Verification System</h3>
-        <p class="meta">Dissertation, January to May 2025</p>
-        <p>My dissertation: an app that helps pharmacists check whether a medicine is genuine, counterfeit or expired. Every participant in user testing completed every task. I have since rebuilt it in code, so you can try it yourself.</p>
-        <div class="stats">
-          <div><div class="stat">100%</div><span>task completion</span></div>
-          <div><div class="stat">80%</div><span>positive usability ratings</span></div>
-        </div>
-        <div class="links">
-          <a href="https://rahamasaleh1.github.io/MedicineVerificationSystem/">Try the app</a>
-          <a href="https://github.com/rahamasaleh1/MedicineVerificationSystem">View on GitHub</a>
-        </div>
-      </article>
-      <article class="right">
         <h3>Bank Marketing Analysis</h3>
         <p class="meta">Business Intelligence, De Montfort University</p>
         <p>I analysed 41,000 customer records to work out who is most likely to say yes to a bank's sales call. By calling only the top 20% of customers my model picked, the bank would reach 57% of everyone who signed up.</p>
@@ -256,7 +284,7 @@ footer h2{color:var(--white)}
         </div>
         <div class="links"><a href="https://github.com/rahamasaleh1/Bankmarketinganalysis">View on GitHub</a></div>
       </article>
-      <article>
+      <article class="right">
         <h3>Power Plant Energy Prediction</h3>
         <p class="meta">Duke University AI Product Management, Coursera</p>
         <p>A machine learning model that predicts a power plant's energy output from four weather readings, built for Duke University's AI Product Management course on Coursera.</p>
@@ -265,7 +293,7 @@ footer h2{color:var(--white)}
         </div>
         <div class="links"><a href="https://github.com/rahamasaleh1/powerplantenergyprediction">View on GitHub</a></div>
       </article>
-      <article class="right">
+      <article class="wide">
         <h3>Subscription Leak Detector</h3>
         <p class="meta">Personal project</p>
         <p>A Python tool that reads a bank statement and finds the subscriptions you forgot you were paying for.</p>
@@ -273,20 +301,6 @@ footer h2{color:var(--white)}
           <div><div class="stat">£839</div><span>a year found in the sample data</span></div>
         </div>
         <div class="links"><a href="https://github.com/rahamasaleh1/subscriptionleakdetector">View on GitHub</a></div>
-      </article>
-      <article class="wide">
-        <h3>PantryPal: from product vision to first feature</h3>
-        <p class="meta">Product management case study, Python and Streamlit</p>
-        <p>PantryPal is a food waste app I came up with to practise the product process from start to finish. I wrote a product vision with SMART goals, then built an interactive decision matrix to choose which feature to build first. Change any score and the scoreboard reorders straight away.</p>
-        <div class="stats">
-          <div><div class="stat">30%</div><span>food waste reduction goal</span></div>
-          <div><div class="stat">5</div><span>features ranked against 5 weighted criteria</span></div>
-        </div>
-        <div class="links">
-          <a href="https://pantrypal-matrix.streamlit.app/">Try the decision matrix</a>
-          <a href="assets/pantrypal-product-vision.pdf">Read the product vision</a>
-          <a href="assets/pm-toolkit.pdf">See my PM toolkit</a>
-        </div>
       </article>
     </div>
   </div>
